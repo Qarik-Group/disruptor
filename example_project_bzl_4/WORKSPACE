@@ -43,3 +43,30 @@ nixpkgs_cc_configure(
         "@platforms//os:linux",
     ],
 )
+
+nixpkgs_package(
+    name = "xorg.libX11.headers",
+    attribute_path = "xorg.libX11.dev",
+    build_file = "//nix_packages:xorg.libX11.bazel",
+    repositories = {
+        "nixpkgs": "@nixpkgs",
+    },
+)
+
+nixpkgs_package(
+    name = "xorg.libX11.lib",
+    attribute_path = "xorg.libX11",
+    build_file = "//nix_packages:xorg.libX11.bazel",
+    repositories = {
+        "nixpkgs": "@nixpkgs",
+    },
+)
+
+nixpkgs_package(
+    name = "xorg.xorgproto.headers",
+    attribute_path = "xorg.xorgproto",
+    build_file = "//nix_packages:xorg.xorgproto.bazel",
+    repositories = {
+        "nixpkgs": "@nixpkgs",
+    },
+)

@@ -1,0 +1,4 @@
+exports_files([
+  "xorg.libX11.bazel",
+  "xorg.xorgproto.bazel",
+])
