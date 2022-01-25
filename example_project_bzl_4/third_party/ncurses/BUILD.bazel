@@ -1,4 +1,5 @@
 exports_files([
     "defs.bzl",
-    "BUILD.bazel.tmpl"
+    "BUILD.bazel.tmpl",
+    "ncurses.nix",
 ])

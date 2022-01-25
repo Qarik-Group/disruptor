@@ -8,7 +8,6 @@ cc_binary(
       "*.c"
     ]),
     deps = [
-      "@readline.headers//:all",
-      "@readline.lib//:all",
+      "@readline",
     ]
 )

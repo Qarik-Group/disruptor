@@ -3,7 +3,7 @@ load("@rules_cc//cc:defs.bzl", "cc_library")
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
-    name = "all",
+    name = "readline",
     srcs = glob([
         "lib/*.a",
         "lib/*.so*",
@@ -16,6 +16,6 @@ cc_library(
         "include",
     ],
     deps = [
-        "@ncurses.lib//:all",
+        "@ncurses",
     ]
 )
