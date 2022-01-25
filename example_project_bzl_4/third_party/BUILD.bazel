@@ -1,0 +1,5 @@
+""" This packages contains thrid party dependencies. """
+
+exports_files([
+    "dependencies.bzl"
+])

@@ -21,19 +21,13 @@ http_archive(
 load("@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl", "rules_nixpkgs_dependencies")
 rules_nixpkgs_dependencies()
 
-load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_git_repository", "nixpkgs_package", "nixpkgs_cc_configure")
+load("//third_party/nix:defs.bzl", "NIX_REPOSITORIES", "nix_repositories")
+nix_repositories()
 
-nixpkgs_git_repository(
-    name = "nixpkgs",
-    revision = "21.11",
-    sha256 = "c77bb41cf5dd82f4718fa789d49363f512bb6fa6bc25f8d60902fe2d698ed7cc",
-)
-
+load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_cc_configure")
 nixpkgs_cc_configure(
     name = "toolchain-linux-x86_64",
-    repositories = {
-        "nixpkgs": "@nixpkgs",
-    },
+    repositories = NIX_REPOSITORIES,
     exec_constraints = [
         "@platforms//cpu:x86_64",
         "@platforms//os:linux",
@@ -44,29 +38,5 @@ nixpkgs_cc_configure(
     ],
 )
 
-nixpkgs_package(
-    name = "xorg.libX11.headers",
-    attribute_path = "xorg.libX11.dev",
-    build_file = "//nix_packages:xorg.libX11.bazel",
-    repositories = {
-        "nixpkgs": "@nixpkgs",
-    },
-)
-
-nixpkgs_package(
-    name = "xorg.libX11.lib",
-    attribute_path = "xorg.libX11",
-    build_file = "//nix_packages:xorg.libX11.bazel",
-    repositories = {
-        "nixpkgs": "@nixpkgs",
-    },
-)
-
-nixpkgs_package(
-    name = "xorg.xorgproto.headers",
-    attribute_path = "xorg.xorgproto",
-    build_file = "//nix_packages:xorg.xorgproto.bazel",
-    repositories = {
-        "nixpkgs": "@nixpkgs",
-    },
-)
+load("//third_party:dependencies.bzl", "third_party_deps")
+third_party_deps()
