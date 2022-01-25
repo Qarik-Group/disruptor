@@ -1,2 +1,3 @@
 .cache
-bazel
+bazel*
+.output-bazelrc
