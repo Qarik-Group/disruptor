@@ -1,0 +1,4 @@
+exports_files([
+    "aarch64-linux.nix",
+    "ppc64-linux.nix",
+])

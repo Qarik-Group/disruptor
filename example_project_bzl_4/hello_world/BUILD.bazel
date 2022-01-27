@@ -7,4 +7,7 @@ cc_binary(
     srcs = glob([
       "*.cpp"
     ]),
+    deps = [
+      "//third_party/xz"
+    ]
 )

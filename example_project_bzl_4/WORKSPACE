@@ -6,6 +6,15 @@ load(
 )
 
 http_archive(
+    name = "platforms",
+    urls = [
+        "https://github.com/bazelbuild/platforms/archive/e658a6af526089406d0057160542597501ba65d7.tar.gz"
+    ],
+    sha256 = "056bf8eeb3c49cf215007586943215a5bf3e41205fab99a79a01b0978d4857d0",
+    strip_prefix = "platforms-e658a6af526089406d0057160542597501ba65d7",
+)
+
+http_archive(
     name = "rules_cc",
     urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.1/rules_cc-0.0.1.tar.gz"],
     sha256 = "4dccbfd22c0def164c8f47458bd50e0c7148f3d92002cdb459c2a96a68498241",
@@ -24,19 +33,8 @@ rules_nixpkgs_dependencies()
 load("//third_party/nix:defs.bzl", "NIX_REPOSITORIES", "nix_repositories")
 nix_repositories()
 
-load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_cc_configure")
-nixpkgs_cc_configure(
-    name = "toolchain-linux-x86_64",
-    repositories = NIX_REPOSITORIES,
-    exec_constraints = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-    target_constraints = [
-        "@platforms//cpu:x86_64",
-        "@platforms//os:linux",
-    ],
-)
+load("//third_party/cpp_toolchains:defs.bzl", "cpp_toolchains")
+cpp_toolchains()
 
 load("//third_party:dependencies.bzl", "third_party_deps")
 third_party_deps()
