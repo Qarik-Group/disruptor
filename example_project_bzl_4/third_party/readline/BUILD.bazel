@@ -1,6 +1,20 @@
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "readline",
+    actual = select({
+      "@bazel_tools//src/conditions:linux_x86_64": "@readline.x86_64_linux//:readline",
+      "@bazel_tools//src/conditions:linux_aarch64": "@readline.aarch64_linux//:readline",
+      "@bazel_tools//src/conditions:linux_ppc64le": "@readline.ppc64_linux//:readline",
+  }),
+)
+
 exports_files([
-    "defs.bzl",
     "BUILD.bazel.tmpl",
-    "readline.nix",
+    "defs.bzl",
     "no-arch_only.patch",
+    "common.nix",
+    "readline-x86_64-linux.nix",
+    "readline-aarch64-linux.nix",
+    "readline-ppc64-linux.nix",
 ])
