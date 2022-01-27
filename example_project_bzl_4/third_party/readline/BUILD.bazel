@@ -1,0 +1,6 @@
+exports_files([
+    "defs.bzl",
+    "BUILD.bazel.tmpl",
+    "readline.nix",
+    "no-arch_only.patch",
+])

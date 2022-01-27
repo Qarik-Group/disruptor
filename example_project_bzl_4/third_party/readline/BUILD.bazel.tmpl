@@ -1,0 +1,21 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "readline",
+    srcs = glob([
+        "lib/*.a",
+        "lib/*.so*",
+    ]),
+    hdrs = glob([
+        "include/**/*.h",
+        "include/**/*.hpp",
+    ]),
+    includes = [
+        "include",
+    ],
+    deps = [
+        "@ncurses",
+    ]
+)
