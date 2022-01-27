@@ -8,6 +8,6 @@ cc_binary(
       "*.c"
     ]),
     deps = [
-      "@readline",
+      "//third_party/readline",
     ]
 )

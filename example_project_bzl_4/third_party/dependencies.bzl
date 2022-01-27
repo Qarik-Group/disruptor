@@ -3,7 +3,7 @@ load("@//third_party/ncurses:defs.bzl", "ncurses")
 load("@//third_party/readline:defs.bzl", "readline")
 load("@//third_party/xorg.libX11:defs.bzl", "libX11")
 load("@//third_party/xorg.xorgproto:defs.bzl", "xorgproto")
-
+load("@//third_party/xz:defs.bzl", "xz")
 
 def third_party_deps():
     """Load 3rd party dependencies"""
@@ -12,3 +12,4 @@ def third_party_deps():
     ncurses()
     readline()
     xorgproto()
+    xz()
