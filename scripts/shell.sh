@@ -8,9 +8,20 @@
 # '-o pipefail' is not POSIX compliant, will fail in some sh's
 set -eu
 
+realpath () {
+  case "$(uname)" in
+    Linux)
+      readlink -f -- "$1"
+    ;;
+    Darwin)
+      greadlink -f -- "$1"
+    ;;
+  esac
+}
+
 # Find current script location
 {
-  __FILE__=$(dirname "$(readlink -f $0)")
+  __FILE__=$(dirname "$(realpath $0)")
 } || {
   echo "Unable to determine current script location.."
   echo "Will assume '.'"
@@ -58,7 +69,17 @@ fi
 preflightCheck() {
   require_util curl "download dependencies"
   require_util tar "decompress nix installation package"
-  require_util unshare "verify kernel support for user namespaces"
+  case "$(uname)" in
+    Darwin)
+      require_util nix "make the magic happen. You are running on OSX, please make sure Nix is installed by running the following: sh <(curl -L https://nixos.org/nix/install)."
+    ;;
+    Linux)
+      require_util unshare "verify kernel support for user namespaces"
+    ;;
+    *)
+      echo "Platform not yet supported"
+    ;;
+  esac
 }
 
 setup_nix_user_chroot() {
@@ -110,7 +131,7 @@ setup_nix() {
 }
 
 ensure_direnv_is_configured() {
-  local readonly project_root=$(dirname $(readlink -f ${__FILE__}/../docs))
+  local readonly project_root=$(dirname $(realpath ${__FILE__}/../docs))
   mkdir -p "${CACHE_ROOT}"
   echo "[whitelist]" > ${NIX_DIRENV_CONF_PATH}
   echo "prefix = [ \"${project_root}\" ]" >> ${NIX_DIRENV_CONF_PATH}
