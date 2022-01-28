@@ -6,6 +6,7 @@ alias(
       "@bazel_tools//src/conditions:linux_x86_64": "@ncurses.x86_64_linux//:ncurses",
       "@bazel_tools//src/conditions:linux_aarch64": "@ncurses.aarch64_linux//:ncurses",
       "@bazel_tools//src/conditions:linux_ppc64le": "@ncurses.ppc64_linux//:ncurses",
+      "@bazel_tools//src/conditions:darwin_x86_64": "@ncurses.x86_64_darwin//:ncurses",
   }),
 )
 
@@ -16,4 +17,5 @@ exports_files([
     "ncurses-aarch64-linux.nix",
     "ncurses-ppc64-linux.nix",
     "ncurses-x86_64-linux.nix",
+    "ncurses-x86_64-darwin.nix",
 ])

@@ -34,3 +34,14 @@ def readline():
         build_file = "//third_party/readline:BUILD.bazel.tmpl",
 	    repositories = NIX_REPOSITORIES,
     )
+
+    nixpkgs_package(
+        name = "readline.x86_64_darwin",
+        nix_file = "//third_party/readline:readline-x86_64-darwin.nix",
+        nix_file_deps = [
+            "//third_party/readline:common.nix",
+            "//third_party/readline:no-arch_only.patch",
+        ],
+        build_file = "//third_party/readline:BUILD.bazel.tmpl",
+	    repositories = NIX_REPOSITORIES,
+    )

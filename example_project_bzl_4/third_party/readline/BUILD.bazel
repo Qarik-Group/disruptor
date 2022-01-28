@@ -6,6 +6,7 @@ alias(
       "@bazel_tools//src/conditions:linux_x86_64": "@readline.x86_64_linux//:readline",
       "@bazel_tools//src/conditions:linux_aarch64": "@readline.aarch64_linux//:readline",
       "@bazel_tools//src/conditions:linux_ppc64le": "@readline.ppc64_linux//:readline",
+      "@bazel_tools//src/conditions:darwin_x86_64": "@readline.x86_64_darwin//:readline",
   }),
 )
 
@@ -17,4 +18,5 @@ exports_files([
     "readline-x86_64-linux.nix",
     "readline-aarch64-linux.nix",
     "readline-ppc64-linux.nix",
+    "readline-x86_64-darwin.nix",
 ])
