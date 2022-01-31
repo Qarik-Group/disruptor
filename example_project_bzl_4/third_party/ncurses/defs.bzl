@@ -25,3 +25,11 @@ def ncurses():
         build_file = "//third_party/ncurses:BUILD.bazel.tmpl",
         repositories = NIX_REPOSITORIES,
     )
+
+    nixpkgs_package(
+        name = "ncurses.x86_64_darwin",
+        nix_file = "//third_party/ncurses:ncurses-x86_64-darwin.nix",
+        nix_file_deps = [ "//third_party/ncurses:common.nix" ],
+        build_file = "//third_party/ncurses:BUILD.bazel.tmpl",
+        repositories = NIX_REPOSITORIES,
+    )

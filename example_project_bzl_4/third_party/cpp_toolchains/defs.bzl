@@ -50,3 +50,16 @@ def cpp_toolchains():
             "@platforms//os:linux",
         ],
     )
+
+    nixpkgs_cc_configure(
+        name = "cpp-toolchain-x86_64-darwin",
+        repositories = NIX_REPOSITORIES,
+        exec_constraints = [
+            "@platforms//cpu:x86_64",
+            "@platforms//os:macos",
+        ],
+        target_constraints = [
+            "@platforms//cpu:x86_64",
+            "@platforms//os:macos",
+        ],
+    )
