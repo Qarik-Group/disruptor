@@ -29,6 +29,7 @@ in pkgs.stdenv.mkDerivation {
     export TERM=xterm
     # readlink as absolute path is needed
     echo "startup --output_base $(readlink -f ./bazel-output)" > "$(pwd)"/.output-bazelrc
+    echo "build --disk_cache=$(readlink -f $(pwd))/bazel-disk-cache" >> "$(pwd)"/.output-bazelrc
   '';
   TMPDIR = "/tmp";
 }

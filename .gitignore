@@ -1,3 +1,4 @@
 .cache
-bazel-*
 .output-bazelrc
+bazel-*
+nix/bzl/nix-file-deps.bzl

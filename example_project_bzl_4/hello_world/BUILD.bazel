@@ -8,6 +8,6 @@ cc_binary(
       "*.cpp"
     ]),
     deps = [
-      "//third_party/xz"
+      "@distruptor_nix//bzl/packages:xz"
     ]
 )

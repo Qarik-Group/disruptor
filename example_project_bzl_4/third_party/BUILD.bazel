@@ -1,4 +1,5 @@
 """ This packages contains thrid party dependencies. """
+load("@distruptor_nix//bzl:defs.bzl", "nix_package")
 
 exports_files([
     "dependencies.bzl"

@@ -8,6 +8,6 @@ cc_binary(
       "*.c"
     ]),
     deps = [
-      "//third_party/libuv",
+      "@distruptor_nix//bzl/packages:libuv"
     ]
 )
