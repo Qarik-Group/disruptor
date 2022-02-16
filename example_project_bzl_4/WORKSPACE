@@ -20,18 +20,22 @@ http_archive(
     sha256 = "4dccbfd22c0def164c8f47458bd50e0c7148f3d92002cdb459c2a96a68498241",
 )
 
-http_archive(
-    name = "io_tweag_rules_nixpkgs",
-    sha256 = "7efb0f82cda5cdaa8e96b687734c5704b91353561d7889e5d84a13b6d30f4cb8",
-    strip_prefix = "rules_nixpkgs-05a445575de51872f528c537cc7ff3ab11114f21",
-    urls = ["https://github.com/tweag/rules_nixpkgs/archive/05a445575de51872f528c537cc7ff3ab11114f21.tar.gz"],
+local_repository(
+    name = "distruptor_nix",
+    path = "../nix",
 )
 
-load("@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl", "rules_nixpkgs_dependencies")
-rules_nixpkgs_dependencies()
+load("@distruptor_nix//bzl:deps.bzl", "distruptor_deps")
+distruptor_deps()
 
-load("//third_party/nix:defs.bzl", "NIX_REPOSITORIES", "nix_repositories")
-nix_repositories()
+load("@distruptor_nix//bzl:deps_init.bzl", "deps_init")
+deps_init()
+
+load("@distruptor_nix//bzl:defs.bzl", "nix_repositories_init")
+nix_repositories_init()
+
+load("@distruptor_nix//bzl:pkgs.bzl", "nix_packages_init")
+nix_packages_init()
 
 load("//third_party/cpp_toolchains:defs.bzl", "cpp_toolchains")
 cpp_toolchains()

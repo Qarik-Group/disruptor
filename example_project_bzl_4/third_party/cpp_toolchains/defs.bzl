@@ -1,6 +1,5 @@
+load("@distruptor_nix//bzl:defs.bzl", "NIX_REPOSITORIES")
 load("@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl", "nixpkgs_cc_configure")
-load("//third_party/nix:defs.bzl", "NIX_REPOSITORIES")
-
 
 def cpp_toolchains():
     # Naming convention (after nixpkgs)

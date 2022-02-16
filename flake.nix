@@ -32,9 +32,12 @@
       shellHook = ''
         export TERM=xterm
         export DIRENV_CONFIG=$(pwd)/.cache
+        export NIX_PATH="nixpkgs=${nixpkgs}"
         export NIX_USER_CONF_FILES=${./scripts/nix.conf}
         . ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
         eval "$(direnv hook bash)"
+
+        #$(pwd)/nix/gen-bzl-nix-file-deps.sh
       '';
       TMPDIR = "/tmp";
     };

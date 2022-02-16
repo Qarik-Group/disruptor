@@ -9,8 +9,7 @@ cc_binary(
       "*.cpp"
     ]),
     deps = [
-      "@xorg.xorgproto.headers//:all",
-      "@xorg.libX11.headers//:all",
-      "@xorg.libX11.lib//:all",
+      "@distruptor_nix//bzl/packages:xorg.xorgproto",
+      "@distruptor_nix//bzl/packages:xorg.libX11",
     ]
 )

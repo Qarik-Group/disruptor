@@ -1,0 +1,10 @@
+load("@distruptor_nix//bzl:defs.bzl", "nix_package")
+
+package(default_visibility = ["//visibility:public"])
+
+nix_package("libuv")
+nix_package("ncurses")
+nix_package("readline")
+nix_package("xorg.libX11")
+nix_package("xorg.xorgproto")
+nix_package("xz")

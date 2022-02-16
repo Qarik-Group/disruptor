@@ -1,0 +1,13 @@
+workspace(name = "distruptor_nix")
+
+load("@distruptor_nix//bzl:deps.bzl", "distruptor_deps")
+distruptor_deps()
+
+load("@distruptor_nix//bzl:deps_init.bzl", "deps_init")
+deps_init()
+
+load("@distruptor_nix//bzl:defs.bzl", "nix_repositories_init")
+nix_repositories_init()
+
+load("@distruptor_nix//bzl:pkgs.bzl", "nix_packages_init")
+nix_packages_init()
