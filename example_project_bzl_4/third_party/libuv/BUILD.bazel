@@ -6,6 +6,7 @@ alias(
       "@bazel_tools//src/conditions:linux_x86_64": "@libuv.x86_64_linux//:all",
       "@bazel_tools//src/conditions:linux_aarch64": "@libuv.aarch64_linux//:all",
       "@bazel_tools//src/conditions:linux_ppc64le": "@libuv.ppc64_linux//:all",
+      "@bazel_tools//src/conditions:darwin_x86_64": "@libuv.x86_64_darwin//:all",
   }),
 )
 

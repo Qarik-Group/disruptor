@@ -13,6 +13,16 @@ def xz():
     )
 
     nixpkgs_package(
+        name = "xz.x86_64_darwin",
+        nix_file_content = """
+        let pkgs = import <nixpkgs> {}; in
+        pkgs.symlinkJoin { name = "xz_x86_64_darwin"; paths = with pkgs; [ xz xz.dev ]; }
+        """,
+        build_file = "//third_party/xz:BUILD.bazel.tmpl",
+        repositories = NIX_REPOSITORIES,
+    )
+
+    nixpkgs_package(
         name = "xz.aarch64_linux",
         nix_file_content = """
         let pkgs = import <nixpkgs> {}; in

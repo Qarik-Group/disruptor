@@ -6,6 +6,7 @@ alias(
       "@bazel_tools//src/conditions:linux_x86_64": "@xz.x86_64_linux//:all",
       "@bazel_tools//src/conditions:linux_aarch64": "@xz.aarch64_linux//:all",
       "@bazel_tools//src/conditions:linux_ppc64le": "@xz.ppc64_linux//:all",
+      "@bazel_tools//src/conditions:darwin_x86_64": "@xz.x86_64_darwin//:all",
   }),
 )
 

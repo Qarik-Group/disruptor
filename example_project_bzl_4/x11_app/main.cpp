@@ -88,7 +88,6 @@ int main(int argc, char ** argv) {
         0
       };
       KeySym keysym;
-      int len = XLookupString( & e.xkey, buf, sizeof buf, & keysym, NULL);
       if (keysym == XK_Escape)
         break;
     }
