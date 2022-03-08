@@ -28,7 +28,6 @@
         nixUnstable
         # Dynamically load nix envs
         nix-direnv
-        # Add git client to shell, it reads host configuration
         git
       ];
       shellHook = ''
