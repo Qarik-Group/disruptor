@@ -1,6 +1,5 @@
 name: "ci-checks"
 on:
-  pull_request:
   push:
 jobs:
   nix-shell-check:
