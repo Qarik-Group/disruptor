@@ -3,8 +3,8 @@ on:
   pull_request:
   push:
 jobs:
-  tests:
-    name: verify nix shell is properly instantiated for no pre-installed nix
+  nix-shell-check:
+    name: verify nix shell installation
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2.4.0
