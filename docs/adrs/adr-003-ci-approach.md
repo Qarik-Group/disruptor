@@ -12,7 +12,7 @@ We will use GitHub Actions to model and implement the Continous Integration proc
 
 ## Status
 
-Proposed.
+Accepted.
 
 ## Consequences
 Availability of CI is connected with the availability of GitHub Platform itself.
