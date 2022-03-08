@@ -1,3 +1,5 @@
+# ADR 1: Head-to-head development model
+
 ## Context
 
 There are many approaches to structuring work of project versioning, development, testing and deployment. As everyone could have different experience and implicit expectations for said workflow, a common vision for how to approach that process is needed (otherwise, we would risk the repository becoming an unruly stitching of contradictory ideas). 
