@@ -28,6 +28,7 @@
         nixUnstable
         # Dynamically load nix envs
         nix-direnv
+        git
       ];
       shellHook = ''
         export TERM=xterm
