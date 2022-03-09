@@ -54,8 +54,11 @@ readonly NIX_USER_CHROOT_BIN="${NIX_USER_CHROOT_DIR}/nix-user-chroot"
 readonly NIX_STORE="${CACHE_ROOT}/nix-store"
 readonly NIX_VERSION="2.5.1"
 readonly NIX_INSTALL_SCRIPT="${CACHE_ROOT}/nix-${NIX_VERSION}-install.sh"
-readonly NIX_EXTRA_CONF_PATH="${__DIR__}/nix.conf"
-readonly NIX_DIRENV_CONF_PATH="${CACHE_ROOT}/direnv.toml"
+readonly NIX_CONF_DIR="${__DIR__}"
+readonly NIX_USER_CONF_FILES=''
+readonly DIRENV_CONFIG="${CACHE_ROOT}"
+readonly DIRENV_CONF_PATH="${DIRENV_CONFIG}/direnv.toml"
+readonly NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
 
 IS_NIX_INSTALLED=false
 
@@ -135,9 +138,10 @@ setup_nix() {
   # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" sh -c\
    "curl -L https://releases.nixos.org/nix/nix-${NIX_VERSION}/install > ${NIX_INSTALL_SCRIPT} && sh ${NIX_INSTALL_SCRIPT}\
+    --no-channel-add\
     --no-daemon\
     --no-modify-profile\
-    --nix-extra-conf-file ${NIX_EXTRA_CONF_PATH}"
+    --nix-extra-conf-file ${NIX_CONF_DIR}/nix.conf"
 }
 
 ensure_direnv_is_configured() {
@@ -211,7 +215,10 @@ else
   # In future: remove dependency on user HOME
   # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
-    ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
-      && NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
+    ". ${HOME}/.nix-profile/etc/profile.d/nix.sh\
+      && NIX_CONF_DIR=${NIX_CONF_DIR}\
+      NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}\
+      NIX_PATH=${NIX_PATH}\
       nix-shell --pure '${__DIR__}/shell.nix'" "$@"
 fi
+

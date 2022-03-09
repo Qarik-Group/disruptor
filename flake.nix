@@ -34,14 +34,25 @@
       ];
       shellHook = ''
         export TERM=xterm
-        export DIRENV_CONFIG=$(pwd)/.cache
-        export NIX_USER_CONF_FILES=${./scripts/nix.conf}
+        # nix-shell --keep will refuse to retain a variable,
+        # which is not exported in user shell, but which is 
+        # set in the nix-shell.sh. 
+        # Working around this issue takes a lot of effort
+        # (detecting export, exporting and undoing exports
+        # on shell closure).
+        # This approach is more naive, but less
+        # maintainance intensive.
+        export DIRENV_CONFIG="$(pwd)/.cache"
+        export NIX_CONF_DIR="$(pwd)/scripts"
+        export NIX_USER_CONF_FILES=""
+        export NIX_PATH="nixpkgs=$(pwd)/scripts/nixpkgs.nix"
         . ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
         eval "$(direnv hook bash)"
       '';
       TMPDIR = "/tmp";
     };
   in {
+      nixpkgs = pkgs;
       # DO NOT USE nix develop, as it is not hermetic
       # use nix-shell --pure, which loads devShell with out any settings from user env
       devShell = dev_shell;
