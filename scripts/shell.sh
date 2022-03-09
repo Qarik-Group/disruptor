@@ -191,12 +191,12 @@ ensure_direnv_is_configured
 
 if $IS_NIXOS || $IS_NIX_INSTALLED; then
   NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
-   nix-shell --pure "${__FILE__}/shell.nix"
+   nix-shell --pure "${__FILE__}/shell.nix" "$@"
 else
   # Explicitly source nix profile in bash invocation
   # In future: remove dependency on user HOME
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
     ". ${HOME}/.nix-profile/etc/profile.d/nix.sh\
       && NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
-      nix-shell --pure '${__FILE__}/shell.nix'"
+      nix-shell --pure '${__FILE__}/shell.nix' $@"
 fi
