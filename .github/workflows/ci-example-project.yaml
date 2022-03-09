@@ -18,6 +18,4 @@ jobs:
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Build all
-        run: |
-          ./nix-shell.sh "--run cd example_project_bzl_4" 
-          ./nix-shell.sh "--run bazel build //..."
+        run: ./nix-shell.sh --run 'cd example_project_bzl_4 && nix-shell --run "bazel build //..."'
