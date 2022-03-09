@@ -189,7 +189,6 @@ preflightCheck
 ensure_nix_is_present
 ensure_direnv_is_configured
 
-echo "Args passed=$@"
 if $IS_NIXOS || $IS_NIX_INSTALLED; then
   NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
    nix-shell --pure "${__FILE__}/shell.nix" "$@"
