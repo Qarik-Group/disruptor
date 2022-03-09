@@ -16,3 +16,4 @@ jobs:
         run: ./nix-shell.sh
       - name: Build all
         run: bazel build //...
+        working-directory: example_project_bzl_4

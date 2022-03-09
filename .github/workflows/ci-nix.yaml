@@ -15,11 +15,11 @@ jobs:
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Verify nix-shell
-        run: | 
+        run: |
           case $SHELL in 
-            /nix/store/*/bin/bash)
+            /nix/store/*)
               echo "nix-shell is properly installed!";;
             *)
-              echo "looks like shell didn't initialized properly...";;
+              echo "looks like shell didn't initialized properly..." && exit 0;;
           esac
       
