@@ -1,6 +1,6 @@
 name: "Example Project with Bazel 4"
 on:
-  push:
+  pull_request:
 jobs:
   full-build:
     name: build example_project_bzl_4
@@ -15,6 +15,6 @@ jobs:
       - name: Run nix-shell
         run: ./nix-shell.sh
       - name: Build all
-        run: | 
+        run: |
           cd example_project_bzl_4
           bazel build //...

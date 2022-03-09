@@ -14,9 +14,9 @@ jobs:
           fetch-depth: 0
       - name: Install nix-shell
         run: ./nix-shell.sh
-      - name: Check nix
-        run: nix help
-      - name: Verify nix-shell
+      - name: Verify nix-shell version
+        run: nix-env --version
+      - name: Verify nix-shell origin
         run: |
           case $SHELL in 
             /nix/store/*)
