@@ -15,5 +15,6 @@ jobs:
       - name: Run nix-shell
         run: ./nix-shell.sh
       - name: Build all
-        run: bazel build //...
-        working-directory: example_project_bzl_4
+        run: | 
+          cd example_project_bzl_4
+          bazel build //...
