@@ -15,5 +15,3 @@ jobs:
       - name: Install nix-shell
         run: |
           ./nix-shell.sh
-          nix-shell --version
-          echo $SHELL
