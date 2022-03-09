@@ -15,4 +15,4 @@ jobs:
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Verify nix-shell version
-        run: ./nix-shell.sh --run "nix-shell version"
+        run: ./nix-shell.sh --run 'nix-shell --version'
