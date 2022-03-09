@@ -15,7 +15,7 @@ jobs:
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Verify nix-shell version
-        run: nix-env --version
+        run: nix-shell --version
       - name: Verify nix-shell origin
         run: |
           case $SHELL in 
