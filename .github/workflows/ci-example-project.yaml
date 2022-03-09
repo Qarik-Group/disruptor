@@ -19,6 +19,5 @@ jobs:
         run: ./nix-shell.sh
       - name: Build all
         run: |
-          ./nix-shell.sh "--run \
-          cd example_project_bzl_4 \
-          bazel build //..."
+          ./nix-shell.sh "--run cd example_project_bzl_4" 
+          ./nix-shell.sh "--run bazel build //..."
