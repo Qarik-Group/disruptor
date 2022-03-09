@@ -1,1 +1,2 @@
--P ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-latest
+--platform ubuntu-latest=myoung34/github-runner:latest
+--container-cap-add SYS_ADMIN
