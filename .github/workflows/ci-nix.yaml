@@ -13,9 +13,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install nix-shell
-        run: | 
-          ./nix-shell.sh
-          . /home/runner/.nix-profile/etc/profile.d/nix.sh
+        run: ./nix-shell.sh
       - name: Verify nix-shell version
         run: nix-env --version
       - name: Verify nix-shell origin
