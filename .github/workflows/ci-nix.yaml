@@ -14,12 +14,14 @@ jobs:
           fetch-depth: 0
       - name: Install nix-shell
         run: ./nix-shell.sh
+      - name: Run nix-shell
+        run: nix-shell --pure scripts/shell.nix
       - name: Verify nix-shell
         run: |
           case $SHELL in 
             /nix/store/*)
               echo "nix-shell is properly installed!";;
             *)
-              echo "looks like shell didn't initialized properly..." && exit 0;;
+              echo "looks like shell didn't initialized properly..." && exit 1;;
           esac
       
