@@ -1,6 +1,9 @@
 name: "Nix Shell Integrity Check"
 on:
+  pull_request:
   push:
+    branches:
+      - "master"
 jobs:
   nix-shell-check:
     name: verify nix shell installation

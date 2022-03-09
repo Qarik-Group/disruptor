@@ -1,6 +1,9 @@
 name: "Example Project with Bazel 4"
 on:
   pull_request:
+  push:
+    branches:
+      - "master"
 jobs:
   full-build:
     name: build example_project_bzl_4
