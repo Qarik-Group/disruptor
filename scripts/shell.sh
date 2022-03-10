@@ -28,11 +28,11 @@ realpath () {
 {
   # Double quoting breaks desired behaviour
   # shellcheck disable=SC2086
-  __FILE__=$(dirname "$(realpath $0)")
+  __DIR__=$(dirname "$(realpath $0)")
 } || {
   echo "Unable to determine current script location.."
   echo "Will assume '.'"
-  __FILE__="."
+  __DIR__="."
 }
 
 fail() {
@@ -47,15 +47,18 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
-readonly CACHE_ROOT="${__FILE__}/../.cache"
+readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"
 readonly NIX_USER_CHROOT_BIN="${NIX_USER_CHROOT_DIR}/nix-user-chroot"
 readonly NIX_STORE="${CACHE_ROOT}/nix-store"
 readonly NIX_VERSION="2.5.1"
 readonly NIX_INSTALL_SCRIPT="${CACHE_ROOT}/nix-${NIX_VERSION}-install.sh"
-readonly NIX_EXTRA_CONF_PATH="${__FILE__}/nix.conf"
-readonly NIX_DIRENV_CONF_PATH="${CACHE_ROOT}/direnv.toml"
+readonly NIX_CONF_DIR="${__DIR__}"
+readonly NIX_USER_CONF_FILES=''
+readonly DIRENV_CONFIG="${CACHE_ROOT}"
+readonly DIRENV_CONF_PATH="${DIRENV_CONFIG}/direnv.toml"
+readonly NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
 
 IS_NIX_INSTALLED=false
 
@@ -135,17 +138,20 @@ setup_nix() {
   # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" sh -c\
    "curl -L https://releases.nixos.org/nix/nix-${NIX_VERSION}/install > ${NIX_INSTALL_SCRIPT} && sh ${NIX_INSTALL_SCRIPT}\
+    --no-channel-add\
     --no-daemon\
     --no-modify-profile\
-    --nix-extra-conf-file ${NIX_EXTRA_CONF_PATH}"
+    --nix-extra-conf-file ${NIX_CONF_DIR}/nix.conf"
 }
 
 ensure_direnv_is_configured() {
   local readonly project_root
-  project_root=$(dirname "$(realpath "${__FILE__}"/../docs)")
+  project_root=$(dirname "$(realpath "${__DIR__}"/../docs)")
   mkdir -p "${CACHE_ROOT}"
-  echo "[whitelist]" > "${NIX_DIRENV_CONF_PATH}"
-  echo "prefix = [ \"${project_root}\" ]" >> "${NIX_DIRENV_CONF_PATH}"
+  cat > "${DIRENV_CONF_PATH}" << EOF
+[whitelist]
+prefix = [ "${project_root}" ]
+EOF
 }
 
 ensure_nix_is_present() {
@@ -204,14 +210,16 @@ ensure_nix_is_present
 ensure_direnv_is_configured
 
 if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
-  NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
-   nix-shell --pure "${__FILE__}/shell.nix" "$@"
+   nix-shell --pure "${__DIR__}/shell.nix" "$@"
 else
   # Explicitly source nix profile in bash invocation
   # In future: remove dependency on user HOME
   # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
     ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
-      && NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
-      nix-shell --pure '${__FILE__}/shell.nix'" "$@"
+      && NIX_CONF_DIR=${NIX_CONF_DIR}\
+      NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}\
+      NIX_PATH=${NIX_PATH}\
+      nix-shell --pure '${__DIR__}/shell.nix'" "$@"
 fi
+
