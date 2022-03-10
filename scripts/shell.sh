@@ -148,8 +148,10 @@ ensure_direnv_is_configured() {
   local readonly project_root
   project_root=$(dirname "$(realpath "${__DIR__}"/../docs)")
   mkdir -p "${CACHE_ROOT}"
-  echo "[whitelist]" > "${NIX_DIRENV_CONF_PATH}"
-  echo "prefix = [ \"${project_root}\" ]" >> "${NIX_DIRENV_CONF_PATH}"
+  cat > "${DIRENV_CONF_PATH}" << EOF
+[whitelist]
+prefix = [ "${project_root}" ]
+EOF
 }
 
 ensure_nix_is_present() {
@@ -208,14 +210,13 @@ ensure_nix_is_present
 ensure_direnv_is_configured
 
 if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
-  NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
    nix-shell --pure "${__DIR__}/shell.nix" "$@"
 else
   # Explicitly source nix profile in bash invocation
   # In future: remove dependency on user HOME
   # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
-    ". ${HOME}/.nix-profile/etc/profile.d/nix.sh\
+    ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
       && NIX_CONF_DIR=${NIX_CONF_DIR}\
       NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}\
       NIX_PATH=${NIX_PATH}\
