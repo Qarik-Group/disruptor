@@ -47,6 +47,7 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
+readonly USER_NAME="${USER:-"USER variable has not been set"}"
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"
@@ -59,8 +60,10 @@ readonly NIX_USER_CONF_FILES=''
 readonly DIRENV_CONFIG="${CACHE_ROOT}"
 readonly DIRENV_CONF_PATH="${DIRENV_CONFIG}/direnv.toml"
 readonly NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
+readonly VANILLA_RC="${CACHE_ROOT}/vanilla.rc"
 
 IS_NIX_INSTALLED=false
+VANILLA_RUN=false
 
 # Check if running on NixOS
 if [ -e "/etc/os-release" ]; then
@@ -77,7 +80,9 @@ else
 fi
 
 preflightCheck() {
+  require_util cat "print text"
   require_util curl "download dependencies"
+  require_util getopt "sanatize input params"
   require_util tar "decompress nix installation package"
   case "$(uname)" in
     Darwin)
@@ -90,6 +95,17 @@ preflightCheck() {
       echo "Platform not yet supported"
     ;;
   esac
+}
+
+printHelp() {
+  cat << EOF
+   Usage: nix-shell.sh [--vanilla] [--help]
+
+   optional arguments:
+     -h, --help           print this message and exit
+     -v, --vanilla        drop user in to plain bash shell, with default nix setup
+                          (global channel, impure).
+EOF
 }
 
 setup_nix_user_chroot() {
@@ -205,15 +221,59 @@ ensure_nix_is_present() {
   setup_nix
 }
 
+ensure_vanilla_rc_exists() {
+  cat > "${VANILLA_RC}" << EOF
+. ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
+export NIX_CONF_DIR=${NIX_CONF_DIR}
+nix-channel --add https://nixos.org/channels/nixos-21.11 nixos
+nix-channel --update
+export NIX_PATH=${USER_HOME}/.nix-defexpr/channels:nixpkgs=/nix/var/nix/profiles/per-user/${USER_NAME}/channels/nixos
+EOF
+}
+
 preflightCheck
+
+# Parse script input params
+OPTS=$(getopt -o "hv" --long "help,vanilla" -n "$(basename "$0")" -- "$@")
+# shellcheck disable=SC2181
+if [ $? != 0 ] ; then
+  echo "Error in command line arguments." >&2
+  exit 1
+fi
+eval set -- "${OPTS}"
+
+while true; do
+  case "$1" in
+    -h | --help)
+      printHelp
+      exit
+      ;;
+    -v | --vanilla )
+      VANILLA_RUN=true
+      shift
+      ;;
+    -- )
+      shift
+      break
+      ;;
+    * )
+      break
+      ;;
+  esac
+done
+
+ensure_vanilla_rc_exists
 ensure_nix_is_present
 ensure_direnv_is_configured
 
 if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
    nix-shell --pure "${__DIR__}/shell.nix" "$@"
-else
+elif ${VANILLA_RUN}; then
   # Explicitly source nix profile in bash invocation
   # In future: remove dependency on user HOME
+  # shellcheck disable=SC2250
+  $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash --rcfile "${VANILLA_RC}"
+else
   # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
     ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
