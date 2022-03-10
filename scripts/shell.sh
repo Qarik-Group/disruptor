@@ -222,6 +222,7 @@ ensure_nix_is_present() {
 }
 
 ensure_vanilla_rc_exists() {
+  mkdir -p "${CACHE_ROOT}"
   cat > "${VANILLA_RC}" << EOF
 . ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
 export NIX_CONF_DIR=${NIX_CONF_DIR}
