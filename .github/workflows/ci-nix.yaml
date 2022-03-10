@@ -1,0 +1,21 @@
+name: "Nix Shell Integrity Check"
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
+jobs:
+  nix-shell-check:
+    name: verify nix shell installation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses:
+          actions/checkout@v2.4.0
+          # Flakes do not like shallow clones
+        with:
+          fetch-depth: 0
+      - name: Install nix-shell
+        run: ./nix-shell.sh
+      - name: Verify nix-shell version
+        run: ./nix-shell.sh "--run nix-shell --version"

@@ -198,5 +198,5 @@ else
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
     ". ${HOME}/.nix-profile/etc/profile.d/nix.sh\
       && NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
-      nix-shell --pure '${__FILE__}/shell.nix' $@"
+      nix-shell --pure '${__FILE__}/shell.nix'" "$@"
 fi
