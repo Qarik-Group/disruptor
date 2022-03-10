@@ -20,4 +20,4 @@ jobs:
       - name: Build all
         # See: https://github.com/Qarik-Group/disruptor/issues/20
         # Tl;dr direnv hook not triggering, resulting in manual need to invoke nix-shell
-        run: ./nix-shell.sh --run 'cd example_project_bzl_4 && nix-shell --run "bazel build //..."'
+        run: ./nix-shell.sh -- --run 'cd example_project_bzl_4 && nix-shell --run "bazel build //..."'

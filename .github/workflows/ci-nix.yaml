@@ -13,7 +13,7 @@ jobs:
        # Flakes do not like shallow clones
       with:
         fetch-depth: 0
-    - run: ./nix-shell.sh --run 'nix --version'
+    - run: ./nix-shell.sh -- --run 'nix --version'
   nix-shell-check:
     name: lint shell scripts
     runs-on: ubuntu-latest

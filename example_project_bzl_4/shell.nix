@@ -2,15 +2,9 @@
 { system ? builtins.currentSystem, ... }:
 
 let
-  flakes-lock = builtins.fromJSON (builtins.readFile ../flake.lock);
-  pkgs-manifest = flakes-lock.nodes.nixpkgs.locked;
-  pkgs-source = builtins.fetchTarball {
-    url =
-      "https://github.com/${pkgs-manifest.owner}/${pkgs-manifest.repo}/archive/${pkgs-manifest.rev}.tar.gz";
-    sha256 =
-      (builtins.replaceStrings [ "sha256-" ] [ "" ] pkgs-manifest.narHash);
-  };
-  pkgs = import pkgs-source {
+  # As NIX_PATH is tightly controlled,
+  # using <> import is not breaking hermeticity.
+  pkgs = import <nixpkgs> {
     inherit system;
   };
 in pkgs.stdenv.mkDerivation {
