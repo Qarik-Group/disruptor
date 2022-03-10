@@ -99,7 +99,7 @@ preflightCheck() {
 
 printHelp() {
   cat << EOF
-   Usage: nix-shell.sh [--vanilla] [--help]
+   Usage: nix-shell.sh [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
 
    optional arguments:
      -h, --help           print this message and exit
