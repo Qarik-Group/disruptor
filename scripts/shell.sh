@@ -162,7 +162,7 @@ setup_nix() {
 
 ensure_direnv_is_configured() {
   local readonly project_root
-  project_root=$(dirname "$(realpath "${__DIR__}"/../docs)")
+  project_root=$(dirname "$(realpath "${__DIR__}"/..)")
   mkdir -p "${CACHE_ROOT}"
   cat > "${DIRENV_CONF_PATH}" << EOF
 [whitelist]
