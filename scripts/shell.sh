@@ -16,11 +16,18 @@ realpath () {
     Darwin)
       greadlink -f -- "$1"
     ;;
+    *)
+     # For esoteric uname returns
+     # attempt to run anyways.
+     readlink -f -- "$1" 
+    ;;
   esac
 }
 
 # Find current script location
 {
+  # Double quoting breaks desired behaviour
+  # shellcheck disable=SC2086
   __FILE__=$(dirname "$(realpath $0)")
 } || {
   echo "Unable to determine current script location.."
@@ -84,17 +91,19 @@ preflightCheck() {
 
 setup_nix_user_chroot() {
   # Verify that user namespaces for unprivileged users are enabled
-  local readonly are_user_ns_enabled="$(unshare\
+  local readonly are_user_ns_enabled
+  are_user_ns_enabled="$(unshare\
    --user --pid echo -n YES \
   )"
-  if [ "$are_user_ns_enabled" != "YES" ]; then
+  if [ "${are_user_ns_enabled}" != "YES" ]; then
     # TODO: Implement fallback to proot
     fail "Current kernel settings do not allow\
      running user namespaces for unprivileged users."
   fi
 
-  local readonly arch=$(uname -m)
-  case "$arch" in
+  local readonly arch
+  arch=$(uname -m)
+  case "${arch}" in
     "aarch64")
     local readonly download_url="https://github.com/nix-community\
 /nix-user-chroot/releases/download/${NIX_USER_CHROOT_VERSION}\
@@ -123,6 +132,7 @@ setup_nix() {
   mkdir -p "${NIX_STORE}" || {
     fail "Unable to create '${NIX_STORE}'"
   }
+  # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" sh -c\
    "curl -L https://releases.nixos.org/nix/nix-${NIX_VERSION}/install > ${NIX_INSTALL_SCRIPT} && sh ${NIX_INSTALL_SCRIPT}\
     --no-daemon\
@@ -131,14 +141,15 @@ setup_nix() {
 }
 
 ensure_direnv_is_configured() {
-  local readonly project_root=$(dirname $(realpath ${__FILE__}/../docs))
+  local readonly project_root
+  project_root=$(dirname "$(realpath "${__FILE__}"/../docs)")
   mkdir -p "${CACHE_ROOT}"
-  echo "[whitelist]" > ${NIX_DIRENV_CONF_PATH}
-  echo "prefix = [ \"${project_root}\" ]" >> ${NIX_DIRENV_CONF_PATH}
+  echo "[whitelist]" > "${NIX_DIRENV_CONF_PATH}"
+  echo "prefix = [ \"${project_root}\" ]" >> "${NIX_DIRENV_CONF_PATH}"
 }
 
 ensure_nix_is_present() {
-  if $IS_NIXOS; then
+  if ${IS_NIXOS}; then
     # On nixos, nix is installed by default
     return
   fi
@@ -153,23 +164,26 @@ ensure_nix_is_present() {
   # Details: https://github.com/lilyball/nix-env.fish/blob/00c6cc762427efe08ac0bd0d1b1d12048d3ca727/conf.d/nix-env.fish
 
   # stat is not portable. Splitting the output of ls -nd is reliable on most platforms.
-  if $IS_NIX_INSTALLED; then
-    local readonly nix_store_owner=$(ls -nd /nix/store | cut -d' ' -f3)
+  if ${IS_NIX_INSTALLED}; then
+    local readonly nix_store_owner
+    # shellcheck disable=SC2012
+    nix_store_owner=$(ls -nd /nix/store | cut -d' ' -f3)
     if [ "${nix_store_owner}" -eq 0 ]; then
       local readonly is_nix_multiuser_install=true;
     else
       local readonly is_nix_multiuser_install=false;
     fi
   else
+    # shellcheck disable=SC2034
     local readonly is_nix_multiuser_install=false;
   fi
 
   # Global, single-user installation
-  if $IS_NIX_INSTALLED && ! $is_nix_multiuser_install; then
+  if ${IS_NIX_INSTALLED} && ! ${is_nix_multiuser_install}; then
     return
   fi
 
-  if $IS_NIX_INSTALLED && $is_nix_multiuser_install; then
+  if ${IS_NIX_INSTALLED} && ${is_nix_multiuser_install}; then
     # TODO: Find a solution
     fail "Daemon-based nix installation is not supported"
   fi
@@ -189,14 +203,15 @@ preflightCheck
 ensure_nix_is_present
 ensure_direnv_is_configured
 
-if $IS_NIXOS || $IS_NIX_INSTALLED; then
+if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
   NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
    nix-shell --pure "${__FILE__}/shell.nix" "$@"
 else
   # Explicitly source nix profile in bash invocation
   # In future: remove dependency on user HOME
+  # shellcheck disable=SC2250
   $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
-    ". ${HOME}/.nix-profile/etc/profile.d/nix.sh\
+    ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
       && NIX_USER_CONF_FILES=${NIX_EXTRA_CONF_PATH}\
       nix-shell --pure '${__FILE__}/shell.nix'" "$@"
 fi
