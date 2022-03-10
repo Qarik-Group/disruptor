@@ -23,13 +23,14 @@
         coreutils-full
         curlFull
         direnv
+        # Add git client to shell, it reads host configuration
+        git
         gnutar
         # Nix 2.5 (as the one from the installator)
         nixUnstable
         # Dynamically load nix envs
         nix-direnv
-        # Add git client to shell, it reads host configuration
-        git
+        shellcheck
       ];
       shellHook = ''
         export TERM=xterm

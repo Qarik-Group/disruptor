@@ -1,21 +1,31 @@
-name: "Nix Shell Integrity Check"
+name: "Nix Shell Checks"
 on:
   pull_request:
   push:
     branches:
       - "master"
 jobs:
-  nix-shell-check:
-    name: verify nix shell installation
+  nix-shell-run-verification:
+    name: verify nix shell simple invocation
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses:
-          actions/checkout@v2.4.0
-          # Flakes do not like shallow clones
-        with:
-          fetch-depth: 0
-      - name: Install nix-shell
-        run: ./nix-shell.sh
-      - name: Verify nix-shell version
-        run: ./nix-shell.sh "--run nix-shell --version"
+    - uses: actions/checkout@v2.4.0
+       # Flakes do not like shallow clones
+      with:
+        fetch-depth: 0
+    - run: ./nix-shell.sh --run 'nix --version'
+  nix-shell-check:
+    name: lint shell scripts
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2.4.0
+       # Flakes do not like shallow clones
+      with:
+        fetch-depth: 0
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      env:
+        SHELLCHECK_OPTS: -s sh -s bash -s dash -s ksh -o all
+      with:
+        # Synced with shellcheck in used nixpkgs
+        version: v0.7.2
