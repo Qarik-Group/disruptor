@@ -1,7 +1,9 @@
 Disruptor
 ---
 [![built with nix](https://builtwithnix.org/badge.svg)](https://builtwithnix.org)
-[![ci-checks](https://github.com/Qarik-Group/disruptor/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/Qarik-Group/disruptor/actions/workflows/ci.yaml)
+
+[![ci-nix](https://github.com/Qarik-Group/disruptor/actions/workflows/ci-nix.yaml/badge.svg?branch=master)](https://github.com/Qarik-Group/disruptor/actions/workflows/ci-nix.yaml)
+[![ci-example-project](https://github.com/Qarik-Group/disruptor/actions/workflows/ci-example-project.yaml/badge.svg?branch=master)](https://github.com/Qarik-Group/disruptor/actions/workflows/ci-example-project.yaml)
 
 ### Example
 ```bash
