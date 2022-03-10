@@ -47,7 +47,6 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
-readonly USER_NAME="${USER:-"USER variable has not been set"}"
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"
@@ -226,9 +225,7 @@ ensure_vanilla_rc_exists() {
   cat > "${VANILLA_RC}" << EOF
 . ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
 export NIX_CONF_DIR=${NIX_CONF_DIR}
-nix-channel --add https://nixos.org/channels/nixos-21.11 nixos
-nix-channel --update
-export NIX_PATH=${USER_HOME}/.nix-defexpr/channels:nixpkgs=/nix/var/nix/profiles/per-user/${USER_NAME}/channels/nixos
+export NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-21.11.tar.gz"
 EOF
 }
 
