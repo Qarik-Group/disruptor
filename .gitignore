@@ -1,4 +1,6 @@
+.direnv
 .cache
 bazel-*
 .output-bazelrc
 result
+
