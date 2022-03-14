@@ -233,6 +233,10 @@ preflightCheck
 
 # Parse script input params
 OPTS=$(getopt -o "hv" --long "help,vanilla" -n "$(basename "$0")" -- "$@")
+
+# Store nix-shell input params
+NIX_SHELL_ARGS=''
+
 # shellcheck disable=SC2181
 if [ $? != 0 ] ; then
   echo "Error in command line arguments." >&2
@@ -252,6 +256,9 @@ while true; do
       ;;
     -- )
       shift
+      # Pass arguments to nix-shell preserving quotes
+      # Do not rely on shell's builtin printf as it may lack some of directives
+      NIX_SHELL_ARGS=$(/usr/bin/env printf '%q ' "$@")
       break
       ;;
     * )
@@ -265,19 +272,22 @@ ensure_nix_is_present
 ensure_direnv_is_configured
 
 if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
-   nix-shell --pure "${__DIR__}/shell.nix" "$@"
+  exec ${SHELL} -ci "nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
 elif ${VANILLA_RUN}; then
   # Explicitly source nix profile in bash invocation
   # In future: remove dependency on user HOME
   # shellcheck disable=SC2250
-  $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash --rcfile "${VANILLA_RC}"
+  exec $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash \
+    --rcfile "${VANILLA_RC}" \
+    -ci "nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
 else
   # shellcheck disable=SC2250
-  $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
-    ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
-      && NIX_CONF_DIR=${NIX_CONF_DIR}\
+  exec $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash \
+    --rcfile "${USER_HOME}/.nix-profile/etc/profile.d/nix.sh" \
+    -ci "\
+      NIX_CONF_DIR=${NIX_CONF_DIR}\
       NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}\
       NIX_PATH=${NIX_PATH}\
-      nix-shell --pure '${__DIR__}/shell.nix'" "$@"
+      nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
 fi
 
