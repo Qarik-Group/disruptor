@@ -16,40 +16,8 @@
   let
     pkgs = nixpkgs.legacyPackages.${system};
     pkgs_latest = nixpkgs.legacyPackages.${system};
-    dev_shell = pkgs.stdenv.mkDerivation {
-      name = "dev-shell";
-      buildInputs = with pkgs; [
-        cacert
-        coreutils-full
-        curlFull
-        direnv
-        # Add git client to shell, it reads host configuration
-        git
-        gnutar
-        # Nix 2.5 (as the one from the installator)
-        nixUnstable
-        # Dynamically load nix envs
-        nix-direnv
-        shellcheck
-      ];
-      shellHook = ''
-        export TERM=xterm
-        # nix-shell --keep will refuse to retain a variable,
-        # which is not exported in user shell, but which is 
-        # set in the nix-shell.sh. 
-        # Working around this issue takes a lot of effort
-        # (detecting export, exporting and undoing exports
-        # on shell closure).
-        # This approach is more naive, but less
-        # maintainance intensive.
-        export DIRENV_CONFIG="$(pwd)/.cache"
-        export NIX_CONF_DIR="$(pwd)/scripts"
-        export NIX_USER_CONF_FILES=""
-        export NIX_PATH="nixpkgs=$(pwd)/scripts/nixpkgs.nix"
-        . ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
-        eval "$(direnv hook bash)"
-      '';
-      TMPDIR = "/tmp";
+    dev_shell = import ./shell.nix {
+      pkgs = nixpkgs.legacyPackages.${system};
     };
   in {
       nixpkgs = pkgs;

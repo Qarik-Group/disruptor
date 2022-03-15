@@ -59,7 +59,7 @@ readonly NIX_USER_CONF_FILES=''
 readonly DIRENV_CONFIG="${CACHE_ROOT}"
 readonly DIRENV_CONF_PATH="${DIRENV_CONFIG}/direnv.toml"
 readonly NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
-readonly VANILLA_RC="${CACHE_ROOT}/vanilla.rc"
+readonly NIX_SHELL_RC="${CACHE_ROOT}/nix_shell.rc"
 
 IS_NIX_INSTALLED=false
 VANILLA_RUN=false
@@ -220,12 +220,25 @@ ensure_nix_is_present() {
   setup_nix
 }
 
-ensure_vanilla_rc_exists() {
+ensure_nix_shell_rc_exists() {
   mkdir -p "${CACHE_ROOT}"
-  cat > "${VANILLA_RC}" << EOF
-. ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
-export NIX_CONF_DIR=${NIX_CONF_DIR}
-export NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-21.11.tar.gz"
+  cat > "${NIX_SHELL_RC}" << EOF
+
+$(
+  if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
+    echo ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh";
+    echo "export NIX_CONF_DIR=${NIX_CONF_DIR}";
+    echo "export NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}";
+  fi
+
+  if ${VANILLA_RUN}; then
+    echo "export NIX_PATH=\
+nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-21.11.tar.gz";
+  else
+    echo "export NIX_PATH=${NIX_PATH}";
+  fi
+)
+
 EOF
 }
 
@@ -233,6 +246,10 @@ preflightCheck
 
 # Parse script input params
 OPTS=$(getopt -o "hv" --long "help,vanilla" -n "$(basename "$0")" -- "$@")
+
+# Store nix-shell input params
+NIX_SHELL_ARGS=''
+
 # shellcheck disable=SC2181
 if [ $? != 0 ] ; then
   echo "Error in command line arguments." >&2
@@ -252,6 +269,9 @@ while true; do
       ;;
     -- )
       shift
+      # Pass arguments to nix-shell preserving quotes
+      # Do not rely on shell's builtin printf as it may lack some of directives
+      NIX_SHELL_ARGS=$(/usr/bin/env printf '%q ' "$@")
       break
       ;;
     * )
@@ -260,24 +280,16 @@ while true; do
   esac
 done
 
-ensure_vanilla_rc_exists
 ensure_nix_is_present
 ensure_direnv_is_configured
+ensure_nix_shell_rc_exists
 
 if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
-   nix-shell --pure "${__DIR__}/shell.nix" "$@"
-elif ${VANILLA_RUN}; then
-  # Explicitly source nix profile in bash invocation
-  # In future: remove dependency on user HOME
-  # shellcheck disable=SC2250
-  $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash --rcfile "${VANILLA_RC}"
+  exec ${SHELL} --rcfile "${NIX_SHELL_RC}"\
+    -ci "nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
 else
   # shellcheck disable=SC2250
-  $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash -c\
-    ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh\
-      && NIX_CONF_DIR=${NIX_CONF_DIR}\
-      NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}\
-      NIX_PATH=${NIX_PATH}\
-      nix-shell --pure '${__DIR__}/shell.nix'" "$@"
+  exec $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash --rcfile "${NIX_SHELL_RC}"\
+    -ci "nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
 fi
 
