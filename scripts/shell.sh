@@ -225,7 +225,7 @@ ensure_nix_shell_rc_exists() {
   cat > "${NIX_SHELL_RC}" << EOF
 
 $(
-  if ! ${IS_NIXOS} || ! ${IS_NIX_INSTALLED}; then
+  if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
     echo ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh";
     echo "export NIX_CONF_DIR=${NIX_CONF_DIR}";
     echo "export NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}";
