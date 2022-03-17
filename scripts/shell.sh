@@ -284,21 +284,22 @@ ensure_nix_is_present
 ensure_direnv_is_configured
 ensure_nix_shell_rc_exists
 
+# shellcheck disable=SC1091
+. "${__DIR__}/push.sh"
+
 if ! ${IS_NIXOS} && ! ${IS_NIX_INSTALLED}; then
   # shellcheck disable=SC2250
   SHELL="$NIX_USER_CHROOT_BIN ${NIX_STORE} bash"
 fi
 
 # Pass arguments to nix-shell preserving quotes
-nsargs="$( (set -o xtrace;: "$@") 2>&1 )"
-nsargs=${nsargs#+++ :}
-nsargs=${nsargs#++ :}
-nsargs=${nsargs#+ :}
-if ! ${VANILLA_RUN}; then
-  nsargs="--pure ${nsargs}"
+if ${VANILLA_RUN}; then
+  Push -c nsargs "$@" || true
+else
+  Push -c nsargs --pure "$@"
 fi
 
-# shellcheck disable=SC2086
+# shellcheck disable=SC2086,SC2154
 exec ${SHELL}\
   -ci "\
   set -a ; . ${NIX_SHELL_RC}; set +a ;\
