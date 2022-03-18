@@ -43,6 +43,7 @@ pkgs.mkShell {
   shellHook = ''
     . ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
     eval "$(direnv hook bash)"
+    cd() { builtin cd $1; eval "$(direnv export bash)"; }
   '';
 }
 
