@@ -236,6 +236,8 @@ ensure_nix_shell_rc_exists() {
   mkdir -p "${CACHE_ROOT}"
 
   cat > "${NIX_SHELL_RC}" <<- EOL
+	DIRENV_CONFIG=${DIRENV_CONFIG}
+	NIX_SHELL_RC=${NIX_SHELL_RC}
 	NIX_PATH=${nix_path}
 	EOL
 
