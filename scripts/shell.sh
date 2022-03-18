@@ -61,6 +61,7 @@ readonly DIRENV_CONFIG="${CACHE_ROOT}"
 readonly DIRENV_CONF_PATH="${DIRENV_CONFIG}/direnv.toml"
 readonly NIX_SHELL_RC="${CACHE_ROOT}/nix_shell.rc"
 
+EXTRA_RC=''
 IS_NIX_INSTALLED=false
 VANILLA_RUN=false
 
@@ -98,10 +99,11 @@ preflightCheck() {
 
 printHelp() {
   cat << EOF
-   Usage: nix-shell.sh [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
+   Usage: nix-shell.sh [--rcfile] [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
 
    optional arguments:
      -h, --help           print this message and exit
+     -r, --rcfile         load additional rc file when entering shell
      -v, --vanilla        drop user in to plain bash shell, with default nix setup
                           (global channel, impure).
 EOF
@@ -222,24 +224,31 @@ ensure_nix_is_present() {
 
 ensure_nix_shell_rc_exists() {
   if ${VANILLA_RUN}; then
+
     set +u
-    if [ -n "${NIX_PATH}" ]; then
+    if
+      [ -n "${NIX_PATH}" ];
+    then
       local nix_path="${NIX_PATH}"
+    elif
+      # shellcheck disable=SC1090
+      [ -n "${EXTRA_RC}" ]\
+      && nix_path_in_rc="$(. "${EXTRA_RC}"; echo "${NIX_PATH}")"\
+      && [ -n "${nix_path_in_rc}" ];
+    then
+      local nix_path="${nix_path_in_rc}"
     else
-       fail "NIX_PATH undefined"
+      fail "NIX_PATH undefined"
     fi
     set -u
+
   else
     local nix_path="${DEFAULT_NIX_PATH}"
   fi
 
   mkdir -p "${CACHE_ROOT}"
 
-  cat > "${NIX_SHELL_RC}" <<- EOL
-	DIRENV_CONFIG=${DIRENV_CONFIG}
-	NIX_SHELL_RC=${NIX_SHELL_RC}
-	NIX_PATH=${nix_path}
-	EOL
+  if [ -n "${EXTRA_RC}" ]; then cat "${EXTRA_RC}" >> "${NIX_SHELL_RC}"; fi
 
   if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
      cat >> "${NIX_SHELL_RC}" <<-EOL
@@ -248,12 +257,19 @@ ensure_nix_shell_rc_exists() {
 	NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}
 	EOL
   fi
+
+  cat >> "${NIX_SHELL_RC}" <<- EOL
+	DIRENV_CONFIG=${DIRENV_CONFIG}
+	NIX_SHELL_RC=${NIX_SHELL_RC}
+	NIX_PATH=${nix_path}
+	EOL
+
 }
 
 preflightCheck
 
 # Parse script input params
-OPTS=$(getopt -o "hv" --long "help,vanilla" -n "$(basename "$0")" -- "$@")
+OPTS=$(getopt -o "hr:v" --long "help,rcfile:,vanilla" -n "$(basename "$0")" -- "$@")
 
 # shellcheck disable=SC2181
 if [ $? != 0 ] ; then
@@ -267,6 +283,10 @@ while true; do
     -h | --help)
       printHelp
       exit
+      ;;
+    -r | --rcfile )
+      EXTRA_RC="$(realpath "$2")"
+      shift 2
       ;;
     -v | --vanilla )
       VANILLA_RUN=true
