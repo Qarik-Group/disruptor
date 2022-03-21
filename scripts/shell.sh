@@ -227,16 +227,16 @@ ensure_nix_shell_rc_exists() {
 
     set +u
     if
-      [ -n "${NIX_PATH}" ];
-    then
-      local nix_path="${NIX_PATH}"
-    elif
       # shellcheck disable=SC1090
       [ -n "${EXTRA_RC}" ]\
       && nix_path_in_rc="$(. "${EXTRA_RC}"; echo "${NIX_PATH}")"\
       && [ -n "${nix_path_in_rc}" ];
     then
       local nix_path="${nix_path_in_rc}"
+    elif
+      [ -n "${NIX_PATH}" ];
+    then
+      local nix_path="${NIX_PATH}"
     else
       fail "NIX_PATH undefined"
     fi
