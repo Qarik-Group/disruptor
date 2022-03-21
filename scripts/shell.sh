@@ -1,40 +1,4 @@
 #!/usr/bin/env sh
-
-# Assumption #1: non-GNU, non-BSD linux distros are out-of-scope
-# Otherwise we at least need to get rid of 'local' keyword
-# Assumption #2: coreutils are present in $PATH
-# Assumption #3: there is internet access (assumption to be removed)
-
-# '-o pipefail' is not POSIX compliant, will fail in some sh's
-set -eu
-
-realpath () {
-  case "$(uname)" in
-    Linux)
-      readlink -f -- "$1"
-    ;;
-    Darwin)
-      greadlink -f -- "$1"
-    ;;
-    *)
-     # For esoteric uname returns
-     # attempt to run anyways.
-     readlink -f -- "$1" 
-    ;;
-  esac
-}
-
-# Find current script location
-{
-  # Double quoting breaks desired behaviour
-  # shellcheck disable=SC2086
-  __DIR__=$(dirname "$(realpath $0)")
-} || {
-  echo "Unable to determine current script location.."
-  echo "Will assume '.'"
-  __DIR__="."
-}
-
 fail() {
   echo "$0:" "$@" >&2
   exit 1
@@ -45,6 +9,85 @@ require_util() {
   command -v "$1" > /dev/null 2>&1 ||
     fail "you do not have '$1' installed, which I need to $2"
 }
+
+if [ "$1" != "--wrapped" ]; then
+  require_util curl "download dependencies"
+  require_util base64 "decode dependencies"
+
+  WD="$(mktemp -d)"
+  mkdir -p "${WD}/bin"
+  mkdir -p "${WD}/lib64"
+
+  case "$(uname)" in
+    Darwin)
+      curl -L -s\
+        'https://github.com/robxu9/bash-static/releases/download/5.1.016-1.2.2/bash-macos-x86_64'\
+        -o "${WD}/bin/bash"
+
+      curl -L -s\
+        'https://android.googlesource.com/platform/prebuilts/build-tools/+/refs/heads/master/darwin-x86/bin/toybox?format=TEXT'\
+        -o - | base64 -d - > "${WD}/bin/toybox"
+
+      curl -L -s\
+        'https://android.googlesource.com/platform/prebuilts/build-tools/+/refs/heads/master/darwin-x86/lib64/libz-host.dylib?format=TEXT'\
+        -o - | base64 -d - > "${WD}/lib64/libz-host.dylib"
+
+      curl -L -s\
+        'https://android.googlesource.com/platform/prebuilts/build-tools/+/refs/heads/master/darwin-x86/lib64/libcrypto-host.dylib?format=TEXT'\
+        -o - | base64 -d - > "${WD}/lib64/libcrypto-host.dylib"
+    ;;
+    *)
+     curl -L -s\
+       'https://github.com/robxu9/bash-static/releases/download/5.1.016-1.2.2/bash-linux-x86_64'\
+       -o "${WD}/bin/bash"
+
+     curl -L -s\
+       'http://landley.net/toybox/downloads/binaries/0.8.6/toybox-x86_64'\
+       -o "${WD}/bin/toybox"
+    ;;
+  esac
+
+  chmod +x "${WD}/bin/bash" && chmod +x "${WD}/bin/toybox"
+
+  for i in $("${WD}/bin/toybox"); do
+    [ "${i}" == "bash" ] && continue
+    "${WD}/bin/toybox" ln -s "${WD}/bin/toybox" "${WD}/bin/${i}";
+  done
+
+  # symlink host utils
+  for i in curl nix nix-shell; do
+    if existing_bin="$("${WD}/bin/which" "${i}" 2>/dev/null)" && [ -n "${existing_bin}" ]; then
+      "${WD}/bin/ln" -s "${existing_bin}" "${WD}/bin/${i}"
+    fi
+  done
+
+  DEFAULT_PATH="${PATH}" PATH="${WD}/bin" bash -- "$0" --wrapped "$@"
+
+  rm -rf "${WD}"
+  exit
+fi
+
+#!${WD}/bin/bash
+shift
+
+# Assumption #1: non-GNU, non-BSD linux distros are out-of-scope
+# Otherwise we at least need to get rid of 'local' keyword
+# Assumption #2: coreutils are present in $PATH
+# Assumption #3: there is internet access (assumption to be removed)
+
+set -eu -o pipefail
+
+# Find current script location
+{
+  # Double quoting breaks desired behaviour
+  # shellcheck disable=SC2086
+  __DIR__=$(dirname "$(readlink -f $0)")
+} || {
+  echo "Unable to determine current script location.."
+  echo "Will assume '.'"
+  __DIR__="."
+}
+
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
 readonly DEFAULT_NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
@@ -80,10 +123,6 @@ else
 fi
 
 preflightCheck() {
-  require_util cat "print text"
-  require_util curl "download dependencies"
-  require_util getopt "sanatize input params"
-  require_util tar "decompress nix installation package"
   case "$(uname)" in
     Darwin)
       require_util nix "make the magic happen. You are running on OSX, please make sure Nix is installed by running the following: sh <(curl -L https://nixos.org/nix/install)."
@@ -102,10 +141,10 @@ printHelp() {
    Usage: nix-shell.sh [--rcfile] [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
 
    optional arguments:
-     -h, --help           print this message and exit
-     -r, --rcfile         load additional rc file when entering shell
-     -v, --vanilla        drop user in to plain bash shell, with default nix setup
-                          (global channel, impure).
+     -h, --help                        print this message and exit
+     -r extra.rc, --rcfile=extra.rc    load additional rc file when entering shell
+     -v, --vanilla                     drop user in to plain bash shell, with default nix setup
+                                       (global channel, impure).
 EOF
 }
 
@@ -163,7 +202,7 @@ setup_nix() {
 
 ensure_direnv_is_configured() {
   local readonly project_root
-  project_root=$(dirname "$(realpath "${__DIR__}"/..)")
+  project_root=$(dirname "$(readlink -f "${__DIR__}"/..)")
   mkdir -p "${CACHE_ROOT}"
   cat > "${DIRENV_CONF_PATH}" << EOF
 [whitelist]
@@ -188,10 +227,7 @@ ensure_nix_is_present() {
 
   # stat is not portable. Splitting the output of ls -nd is reliable on most platforms.
   if ${IS_NIX_INSTALLED}; then
-    local readonly nix_store_owner
-    # shellcheck disable=SC2012
-    nix_store_owner=$(ls -nd /nix/store | cut -d' ' -f3)
-    if [ "${nix_store_owner}" -eq 0 ]; then
+    if [ "$(stat -c %u /nix)" -eq 0 ]; then
       local readonly is_nix_multiuser_install=true;
     else
       local readonly is_nix_multiuser_install=false;
@@ -268,39 +304,24 @@ ensure_nix_shell_rc_exists() {
 
 preflightCheck
 
-# Parse script input params
-OPTS=$(getopt -o "hr:v" --long "help,rcfile:,vanilla" -n "$(basename "$0")" -- "$@")
+needs_arg() { if [ -z "$OPTARG" ]; then fail "No arg for --$OPT option"; fi; }
 
-# shellcheck disable=SC2181
-if [ $? != 0 ] ; then
-  echo "Error in command line arguments." >&2
-  exit 1
-fi
-eval set -- "${OPTS}"
-
-while true; do
-  case "$1" in
-    -h | --help)
-      printHelp
-      exit
-      ;;
-    -r | --rcfile )
-      EXTRA_RC="$(realpath "$2")"
-      shift 2
-      ;;
-    -v | --vanilla )
-      VANILLA_RUN=true
-      shift
-      ;;
-    -- )
-      shift
-      break
-      ;;
-    * )
-      break
-      ;;
+while getopts hr:v-: OPT; do
+  # support long options: https://stackoverflow.com/a/28466267/519360
+  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+    OPT="${OPTARG%%=*}"       # extract long option name
+    OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
+    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+  fi
+  case "$OPT" in
+    h | help )     printHelp && exit ;;
+    v | vanilla )  VANILLA_RUN=true ;;
+    r | rcfile )   needs_arg; EXTRA_RC="$(readlink -f "$OPTARG")" ;;
+    ??* )          die "Illegal option --$OPT" ;;  # bad long option
+    ? )            exit 2 ;;  # bad short option (error reported via getopts)
   esac
 done
+shift $((OPTIND-1)) # remove parsed options and args from $@ list
 
 ensure_nix_is_present
 ensure_direnv_is_configured
@@ -322,7 +343,7 @@ else
 fi
 
 # shellcheck disable=SC2086,SC2154
-exec ${SHELL}\
+PATH="${DEFAULT_PATH}" exec ${SHELL}\
   -ci "\
   set -a ; . ${NIX_SHELL_RC}; set +a ;\
   nix-shell '${__DIR__}/shell.nix' ${nsargs}"
