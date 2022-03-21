@@ -47,6 +47,7 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
+readonly DEFAULT_NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"
@@ -58,9 +59,9 @@ readonly NIX_CONF_DIR="${__DIR__}"
 readonly NIX_USER_CONF_FILES=''
 readonly DIRENV_CONFIG="${CACHE_ROOT}"
 readonly DIRENV_CONF_PATH="${DIRENV_CONFIG}/direnv.toml"
-readonly NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
 readonly NIX_SHELL_RC="${CACHE_ROOT}/nix_shell.rc"
 
+EXTRA_RC=''
 IS_NIX_INSTALLED=false
 VANILLA_RUN=false
 
@@ -98,10 +99,11 @@ preflightCheck() {
 
 printHelp() {
   cat << EOF
-   Usage: nix-shell.sh [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
+   Usage: nix-shell.sh [--rcfile] [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
 
    optional arguments:
      -h, --help           print this message and exit
+     -r, --rcfile         load additional rc file when entering shell
      -v, --vanilla        drop user in to plain bash shell, with default nix setup
                           (global channel, impure).
 EOF
@@ -221,34 +223,53 @@ ensure_nix_is_present() {
 }
 
 ensure_nix_shell_rc_exists() {
-  mkdir -p "${CACHE_ROOT}"
-  cat > "${NIX_SHELL_RC}" << EOF
-
-$(
-  if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
-    echo ". ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh";
-    echo "export NIX_CONF_DIR=${NIX_CONF_DIR}";
-    echo "export NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}";
-  fi
-
   if ${VANILLA_RUN}; then
-    echo "export NIX_PATH=\
-nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-21.11.tar.gz";
-  else
-    echo "export NIX_PATH=${NIX_PATH}";
-  fi
-)
 
-EOF
+    set +u
+    if
+      # shellcheck disable=SC1090
+      [ -n "${EXTRA_RC}" ]\
+      && nix_path_in_rc="$(. "${EXTRA_RC}"; echo "${NIX_PATH}")"\
+      && [ -n "${nix_path_in_rc}" ];
+    then
+      local nix_path="${nix_path_in_rc}"
+    elif
+      [ -n "${NIX_PATH}" ];
+    then
+      local nix_path="${NIX_PATH}"
+    else
+      fail "NIX_PATH undefined"
+    fi
+    set -u
+
+  else
+    local nix_path="${DEFAULT_NIX_PATH}"
+  fi
+
+  mkdir -p "${CACHE_ROOT}"
+
+  if [ -n "${EXTRA_RC}" ]; then cat "${EXTRA_RC}" >> "${NIX_SHELL_RC}"; fi
+
+  if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
+     cat >> "${NIX_SHELL_RC}" <<-EOL
+	. ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
+	NIX_CONF_DIR=${NIX_CONF_DIR}
+	NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}
+	EOL
+  fi
+
+  cat >> "${NIX_SHELL_RC}" <<- EOL
+	DIRENV_CONFIG=${DIRENV_CONFIG}
+	NIX_SHELL_RC=${NIX_SHELL_RC}
+	NIX_PATH=${nix_path}
+	EOL
+
 }
 
 preflightCheck
 
 # Parse script input params
-OPTS=$(getopt -o "hv" --long "help,vanilla" -n "$(basename "$0")" -- "$@")
-
-# Store nix-shell input params
-NIX_SHELL_ARGS=''
+OPTS=$(getopt -o "hr:v" --long "help,rcfile:,vanilla" -n "$(basename "$0")" -- "$@")
 
 # shellcheck disable=SC2181
 if [ $? != 0 ] ; then
@@ -263,15 +284,16 @@ while true; do
       printHelp
       exit
       ;;
+    -r | --rcfile )
+      EXTRA_RC="$(realpath "$2")"
+      shift 2
+      ;;
     -v | --vanilla )
       VANILLA_RUN=true
       shift
       ;;
     -- )
       shift
-      # Pass arguments to nix-shell preserving quotes
-      # Do not rely on shell's builtin printf as it may lack some of directives
-      NIX_SHELL_ARGS=$(/usr/bin/env printf '%q ' "$@")
       break
       ;;
     * )
@@ -284,12 +306,24 @@ ensure_nix_is_present
 ensure_direnv_is_configured
 ensure_nix_shell_rc_exists
 
-if ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
-  exec ${SHELL} --rcfile "${NIX_SHELL_RC}"\
-    -ci "nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
-else
+# shellcheck disable=SC1091
+. "${__DIR__}/push.sh"
+
+if ! ${IS_NIXOS} && ! ${IS_NIX_INSTALLED}; then
   # shellcheck disable=SC2250
-  exec $NIX_USER_CHROOT_BIN "${NIX_STORE}" bash --rcfile "${NIX_SHELL_RC}"\
-    -ci "nix-shell --pure '${__DIR__}/shell.nix' ${NIX_SHELL_ARGS}"
+  SHELL="$NIX_USER_CHROOT_BIN ${NIX_STORE} bash"
 fi
+
+# Pass arguments to nix-shell preserving quotes
+if ${VANILLA_RUN}; then
+  Push -c nsargs "$@" || true
+else
+  Push -c nsargs --pure "$@"
+fi
+
+# shellcheck disable=SC2086,SC2154
+exec ${SHELL}\
+  -ci "\
+  set -a ; . ${NIX_SHELL_RC}; set +a ;\
+  nix-shell '${__DIR__}/shell.nix' ${nsargs}"
 
