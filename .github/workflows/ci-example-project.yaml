@@ -18,6 +18,11 @@ jobs:
           # Flakes do not like shallow clones
         with:
           fetch-depth: 0
+      # Mandatory to install 'coreutils' on MacOS
+      - name: Install dependencies on macOS
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install coreutils
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Build all
