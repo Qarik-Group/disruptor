@@ -1,0 +1,21 @@
+name: "Example Project with Bazel 4"
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
+jobs:
+  full-build:
+    name: build example_project_bzl_4
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses:
+          actions/checkout@v2.4.0
+          # Flakes do not like shallow clones
+        with:
+          fetch-depth: 0
+      - name: Install nix-shell
+        run: ./nix-shell.sh
+      - name: Build all
+        run: ./nix-shell.sh -- --run 'cd example_project_bzl_4; bazel build //...'

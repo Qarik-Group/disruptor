@@ -1,10 +1,28 @@
-(import
-  (
-    let lock = builtins.fromJSON (builtins.readFile ../flake.lock); in
-    fetchTarball {
-      url = "https://github.com/edolstra/flake-compat/archive/${lock.nodes.flake-compat.locked.rev}.tar.gz";
-      sha256 = lock.nodes.flake-compat.locked.narHash;
-    }
-  )
-  { src = ../.; }
-).shellNix
+{ pkgs ? import <nixpkgs> { } }:
+pkgs.mkShell {
+  buildInputs = with pkgs; [
+    cacert
+    coreutils-full
+    curlFull
+    direnv
+    # Add git client to shell, it reads host configuration
+    git
+    gnutar
+    # Nix 2.5 (as the one from the installator)
+    nixUnstable
+    # Dynamically load nix envs
+    nix-direnv
+    shellcheck
+  ];
+
+  TERM = "xterm";
+  TMPDIR = "/tmp";
+
+  shellHook = ''
+    set -a; . ${builtins.getEnv "NIX_SHELL_RC"}; set +a
+    . ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
+    eval "$(direnv hook bash)"
+    cd() { builtin cd $1; eval "$(direnv export bash)"; }
+  '';
+}
+

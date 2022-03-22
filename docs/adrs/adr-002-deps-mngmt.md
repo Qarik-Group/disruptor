@@ -1,3 +1,5 @@
+# ADR 2: Dependecy management using Nix package manager
+
 ## Context
 
 Ideally all developers working on a project should never fall into the pitfall of "it works on my machine" - the tools they are using, its configuration should be identical all across the systems, resulting in reproducible artifacts and behaviours, from the dev hosts up to "production environments". 
