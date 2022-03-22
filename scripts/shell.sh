@@ -269,8 +269,7 @@ ensure_nix_shell_rc_exists() {
 preflightCheck
 
 # Parse script input params
-die() { echo "$*" >&2; exit 2; }
-needs_arg() { if [ -z "$OPTARG" ]; then die "No arg for --$OPT option, check --help"; fi; }
+needs_arg() { if [ -z "${OPTARG}" ]; then fail "No arg for --$OPT option, check --help"; fi; }
 
 while getopts "hr:v:-:" OPT; do
   if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
@@ -288,7 +287,7 @@ while getopts "hr:v:-:" OPT; do
     -v | --vanilla )
       VANILLA_RUN=true ;;
     ??* )
-      die "Illegal option $OPT" ;;
+      fail "Illegal option $OPT" ;;
     ? )
       exit 2 ;;
   esac
