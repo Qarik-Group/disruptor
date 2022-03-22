@@ -10,6 +10,13 @@ def libuv():
     )
 
     nixpkgs_package(
+        name = "libuv.x86_64_darwin",
+        attribute_path = "pkgs.libuv",
+        build_file = "//third_party/libuv:BUILD.bazel.tmpl",
+        repositories = NIX_REPOSITORIES,
+    )
+
+    nixpkgs_package(
         name = "libuv.aarch64_linux",
         attribute_path = "pkgsCross.aarch64-multiplatform.libuv",
         build_file = "//third_party/libuv:BUILD.bazel.tmpl",

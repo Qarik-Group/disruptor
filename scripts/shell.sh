@@ -19,7 +19,7 @@ realpath () {
     *)
      # For esoteric uname returns
      # attempt to run anyways.
-     readlink -f -- "$1" 
+     readlink -f -- "$1"
     ;;
   esac
 }
@@ -67,7 +67,7 @@ VANILLA_RUN=false
 
 # Check if running on NixOS
 if [ -e "/etc/os-release" ]; then
-  case "$(cat /etc/os-release)" in 
+  case "$(cat /etc/os-release)" in
     *NixOS*)
       readonly IS_NIXOS=true;
     ;;
@@ -228,7 +228,7 @@ ensure_nix_shell_rc_exists() {
     set +u
     if
       # shellcheck disable=SC1090
-      [ -n "${EXTRA_RC}" ]\
+      [ -n "${EXTRA_RC}" ] \
       && nix_path_in_rc="$(. "${EXTRA_RC}"; echo "${NIX_PATH}")"\
       && [ -n "${nix_path_in_rc}" ];
     then
@@ -269,38 +269,31 @@ ensure_nix_shell_rc_exists() {
 preflightCheck
 
 # Parse script input params
-OPTS=$(getopt -o "hr:v" --long "help,rcfile:,vanilla" -n "$(basename "$0")" -- "$@")
+needs_arg() { if [ -z "${OPTARG}" ]; then fail "No arg for --${OPT} option, check --help"; fi; }
 
-# shellcheck disable=SC2181
-if [ $? != 0 ] ; then
-  echo "Error in command line arguments." >&2
-  exit 1
-fi
-eval set -- "${OPTS}"
-
-while true; do
+while getopts "hr:v:-:" OPT; do
+  if [ "${OPT}" = "-" ]; then   # long option: reformulate OPT and OPTARG
+    OPT="${OPTARG%%=*}"       # extract long option name
+    OPTARG="${OPTARG#${OPT}}"   # extract long option argument (may be empty)
+    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+  fi
+  # shellcheck disable=SC2214
   case "$1" in
-    -h | --help)
+    -h | --help )
       printHelp
-      exit
-      ;;
+      exit ;;
     -r | --rcfile )
-      EXTRA_RC="$(realpath "$2")"
-      shift 2
-      ;;
+      needs_arg
+      EXTRA_RC="$(realpath "$2")" ;;
     -v | --vanilla )
-      VANILLA_RUN=true
-      shift
-      ;;
-    -- )
-      shift
-      break
-      ;;
+      VANILLA_RUN=true ;;
+    ??* )
+      fail "Illegal option ${OPT}" ;;
     * )
-      break
-      ;;
+      exit 2 ;;
   esac
 done
+shift $((OPTIND-1))
 
 ensure_nix_is_present
 ensure_direnv_is_configured
