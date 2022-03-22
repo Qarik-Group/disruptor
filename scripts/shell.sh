@@ -269,17 +269,17 @@ ensure_nix_shell_rc_exists() {
 preflightCheck
 
 # Parse script input params
-needs_arg() { if [ -z "${OPTARG}" ]; then fail "No arg for --$OPT option, check --help"; fi; }
+needs_arg() { if [ -z "${OPTARG}" ]; then fail "No arg for --${OPT} option, check --help"; fi; }
 
 while getopts "hr:v:-:" OPT; do
-  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
+  if [ "${OPT}" = "-" ]; then   # long option: reformulate OPT and OPTARG
     OPT="${OPTARG%%=*}"       # extract long option name
     OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
     OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
   fi
   # shellcheck disable=SC2214
   case "$1" in
-    -h | --help)
+    -h | --help )
       printHelp
       exit ;;
     -r | --rcfile )
@@ -288,8 +288,8 @@ while getopts "hr:v:-:" OPT; do
     -v | --vanilla )
       VANILLA_RUN=true ;;
     ??* )
-      fail "Illegal option $OPT" ;;
-    ? )
+      fail "Illegal option ${OPT}" ;;
+    * )
       exit 2 ;;
   esac
 done
