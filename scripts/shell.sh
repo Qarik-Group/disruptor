@@ -277,6 +277,7 @@ while getopts "hr:v:-:" OPT; do
     OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
     OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
   fi
+  # shellcheck disable=SC2214
   case "$1" in
     -h | --help)
       printHelp
