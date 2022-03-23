@@ -13,6 +13,8 @@ pkgs.mkShell {
     # Dynamically load nix envs
     nix-direnv
     shellcheck
+    act
+    docker
   ];
 
   TERM = "xterm";
