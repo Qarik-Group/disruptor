@@ -24,8 +24,8 @@ jobs:
         run: |
           brew install coreutils
           sh <(curl -L https://nixos.org/nix/install)
-          nix-shell -p nix-info --run "nix-info -m"
           source ~/.profile
+          nix-shell -p nix-info --run "nix-info -m"
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Build all
