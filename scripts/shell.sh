@@ -86,7 +86,7 @@ preflightCheck() {
   require_util tar "decompress nix installation package"
   case "$(uname)" in
     Darwin)
-      require_util nix "make the magic happen. You are running on OSX, please make sure Nix is installed by running the following: sh <(curl -L https://nixos.org/nix/install)."
+      #require_util nix "make the magic happen. You are running on OSX, please make sure Nix is installed by running the following: sh <(curl -L https://nixos.org/nix/install)."
     ;;
     Linux)
       require_util unshare "verify kernel support for user namespaces"

@@ -23,10 +23,5 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           brew install coreutils
-          sh <(curl -L https://nixos.org/nix/install)
-          source ~/.profile
-          nix-shell -p nix-info --run "nix-info -m"
-      - name: Install nix-shell
-        run: ./nix-shell.sh
       - name: Build all
         run: ./nix-shell.sh -- --run 'cd example_project_bzl_4; bazel build //...'
