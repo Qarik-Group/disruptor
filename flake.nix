@@ -15,13 +15,12 @@
   flake-utils.lib.eachDefaultSystem (system:
   let
     pkgs = nixpkgs.legacyPackages.${system};
-    pkgs_latest = nixpkgs_latest.legacyPackages.${system};
+    pkgs_latest = nixpkgs.legacyPackages.${system};
     dev_shell = import ./shell.nix {
       pkgs = nixpkgs.legacyPackages.${system};
     };
   in {
       nixpkgs = pkgs;
-      nixpkgs_latest = pkgs_latest;
       # DO NOT USE nix develop, as it is not hermetic
       # use nix-shell --pure, which loads devShell with out any settings from user env
       devShell = dev_shell;
