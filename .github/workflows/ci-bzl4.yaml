@@ -1,4 +1,4 @@
-name: "Example Project with Bazel 4"
+name: "Project: bzl4"
 on:
   pull_request:
   push:
@@ -6,7 +6,7 @@ on:
       - "master"
 jobs:
   full-build:
-    name: build example_project_bzl_4
+    name: build bzl4
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,4 +18,4 @@ jobs:
       - name: Install nix-shell
         run: ./nix-shell.sh
       - name: Build all
-        run: ./nix-shell.sh -- --run 'cd example_project_bzl_4; bazel build //...'
+        run: ./nix-shell.sh -- --run 'cd projects/bzl4; bazel build //...'
