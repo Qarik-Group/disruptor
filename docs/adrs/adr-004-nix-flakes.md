@@ -35,9 +35,11 @@ Summarising my thoughts: If convincing the project user to deal with nix flakes 
 
 ## Decision
 
+We will incorporate capability to spawn disruptor shell in "impure" mode, allowing users to choose their experience, potentially lessening the adoption friction.
+
 ## Status
 
-In discussion.
+Accepted.
 
 ## Consequences
 
