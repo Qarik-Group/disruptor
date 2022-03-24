@@ -1,0 +1,6 @@
+module(
+    name = "common-module",
+    version = "1.0.0",
+)
+
+bazel_dep(name = "rules_java", version = "5.0.0")
