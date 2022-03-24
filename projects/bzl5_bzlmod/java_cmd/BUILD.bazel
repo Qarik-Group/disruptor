@@ -1,5 +1,10 @@
-java_binary (
+java_binary(
     name = "java_cmd",
     srcs = glob(["JavaCmd.java"]),
-    main_class = "com.qarik.disruptor.JavaCmd"
+    main_class = "com.qarik.disruptor.JavaCmd",
+    deps = [
+        "@common-module//ascii_banner"
+    ],
+    #disable JDK AWT need to connect to local X server
+    jvm_flags = ["-Djava.awt.headless=true"]
 )
