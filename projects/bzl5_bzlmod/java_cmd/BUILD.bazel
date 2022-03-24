@@ -1,0 +1,5 @@
+java_binary (
+    name = "java_cmd",
+    srcs = glob(["JavaCmd.java"]),
+    main_class = "com.qarik.disruptor.JavaCmd"
+)

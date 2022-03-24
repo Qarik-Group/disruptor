@@ -1,0 +1,6 @@
+module(
+    name = "bzl5_bzlmod",
+    version = "0.0.1",
+)
+
+bazel_dep(name = "rules_java", version = "5.0.0")
