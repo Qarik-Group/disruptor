@@ -250,15 +250,15 @@ ensure_nix_shell_rc_exists() {
 
   if [ -n "${EXTRA_RC}" ]; then cat "${EXTRA_RC}" >> "${NIX_SHELL_RC}"; fi
 
-  if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
+  if ! ${IS_NIXOS}; then
      cat >> "${NIX_SHELL_RC}" <<-EOL
 	. ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
-	NIX_CONF_DIR=${NIX_CONF_DIR}
-	NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}
 	EOL
   fi
-
-  cat >> "${NIX_SHELL_RC}" <<- EOL
+  
+  cat >> "${NIX_SHELL_RC}" <<-EOL
+	NIX_CONF_DIR=${NIX_CONF_DIR}
+	NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}
 	DIRENV_CONFIG=${DIRENV_CONFIG}
 	NIX_SHELL_RC=${NIX_SHELL_RC}
 	NIX_PATH=${nix_path}
