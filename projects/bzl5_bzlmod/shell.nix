@@ -21,6 +21,7 @@ in pkgs.stdenv.mkDerivation {
     nixUnstable
     pkgs_latest.bazel_5
     pkgs_latest.bazel-buildtools
+    jdk11
   ];
   shellHook = ''
     export TERM=xterm

@@ -1,0 +1,9 @@
+module(
+    name = "bzl5_bzlmod",
+    version = "0.0.1",
+)
+
+bazel_dep(name = "rules_java", version = "5.0.0")
+bazel_dep(name = "common-module", version = "1.0.0")
+
+local_path_override(module_name = "common-module", path = "modules/common_module")

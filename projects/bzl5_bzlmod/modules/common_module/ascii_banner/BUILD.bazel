@@ -1,0 +1,6 @@
+java_binary(
+    name = "ascii_banner",
+    srcs = ["AsciiBanner.java"],
+    main_class = "com.qarik.disruptor.common.AsciiBanner",
+    visibility = ["//visibility:public"]
+)

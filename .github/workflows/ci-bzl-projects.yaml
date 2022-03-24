@@ -1,4 +1,4 @@
-name: "Project: bzl4"
+name: "Build projects"
 on:
   pull_request:
   push:
@@ -6,10 +6,11 @@ on:
       - "master"
 jobs:
   full-build:
-    name: build bzl4
+    name: build ${{ matrix.project }} on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest, ubuntu-18.04, macos-latest, macos-10.15 ]
+        project: [ bzl4, bzl5_bzlmod ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
@@ -29,4 +30,4 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - name: Build all
-        run: ./nix-shell.sh -- --run 'cd projects/bzl4; bazel build //...'
+        run: ./nix-shell.sh -- --run 'cd projects/${{ matrix.project }}; bazel build //...'
