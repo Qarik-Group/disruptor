@@ -17,6 +17,7 @@ public final class AsciiBanner {
     }
 
     public void show() {
+        // https://mkyong.com/java/ascii-art-java-example/
         BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setFont(new Font("Ariel", Font.BOLD, FONT_SIZE));
