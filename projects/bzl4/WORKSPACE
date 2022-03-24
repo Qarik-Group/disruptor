@@ -1,4 +1,4 @@
-workspace(name = "example_project_bzl_4")
+workspace(name = "bzl4")
 
 load(
     "@bazel_tools//tools/build_defs/repo:http.bzl",
