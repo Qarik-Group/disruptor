@@ -9,7 +9,7 @@ Disruptor
 ```bash
 $ ./nix-shell.sh
 ...
-$ cd example_project_bzl_4
+$ cd projects/bzl4
 $ bazel build //...
 ```
 
@@ -26,7 +26,7 @@ Simply type `./nix-shell.sh` to be dropped into a shell with all batteries inclu
 
 Project utilizes [nix](https://builtwithnix.org) to deliver a uniform, homogeneous development environment for each of its users & contributors - you are going to be using the same dependencies (bash, core utils, system libraries, bazel etc.), installed from the same source and configured in the same way. No more “works on my machine”-syndrome, as everyone has reproducible and identical working environments. 
 
-_Note_: Dependencies are automatically loaded / unloaded, as the user traverses the project tree - i.e. entering `example_project_bzl4` will result in loading up all of the project dependencies, while moving out of the example project tree will unload bazel. 
+_Note_: Dependencies are automatically loaded / unloaded, as the user traverses the project tree - i.e. entering `projects/bzl4` will result in loading up all of the project dependencies, while moving out of the example project tree will unload bazel. 
 This is done to stay relatively lean in terms of what the average user needs to load.
 
 #### Technical details
