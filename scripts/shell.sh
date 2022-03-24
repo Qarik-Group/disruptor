@@ -82,7 +82,7 @@ fi
 preflightCheck() {
   require_util cat "print text"
   require_util curl "download dependencies"
-  require_util getopt "sanatize input params"
+  require_util getopts "sanitize input params"
   require_util tar "decompress nix installation package"
   case "$(uname)" in
     Darwin)
@@ -269,9 +269,9 @@ ensure_nix_shell_rc_exists() {
 preflightCheck
 
 # Parse script input params
-needs_arg() { if [ -z "${OPTARG}" ]; then fail "No arg for --${OPT} option, check --help"; fi; }
+needs_arg() { if [ -z "${OPTARG}" ]; then fail "--${OPT} option requires an argument, check --help"; fi; }
 
-while getopts "hr:v:-:" OPT; do
+while getopts "hr:v-:" OPT; do
   if [ "${OPT}" = "-" ]; then   # long option: reformulate OPT and OPTARG
     OPT="${OPTARG%%=*}"       # extract long option name
     OPTARG="${OPTARG#${OPT}}"   # extract long option argument (may be empty)
