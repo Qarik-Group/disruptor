@@ -47,7 +47,7 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
-readonly DEFAULT_NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix"
+readonly DEFAULT_NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix:nixpkgs_latest=${__DIR__}/nixpkgs-latest.nix"
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"

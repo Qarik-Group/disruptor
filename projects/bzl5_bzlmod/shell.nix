@@ -7,7 +7,9 @@ let
   pkgs = import <nixpkgs> {
     inherit system;
   };
-  pkgs_unstable = import (fetchTarball https://nixos.org/channels/nixos-unstable/nixexprs.tar.xz) { };
+  pkgs_latest = import <nixpkgs_latest> {
+    inherit system;
+  };
 in pkgs.stdenv.mkDerivation {
   name = "bzl-5-shell";
   buildInputs = with pkgs; [
@@ -17,8 +19,8 @@ in pkgs.stdenv.mkDerivation {
     direnv
     gnutar
     nixUnstable
-    pkgs_unstable.bazel_5
-    pkgs_unstable.bazel-buildtools
+    pkgs_latest.bazel_5
+    pkgs_latest.bazel-buildtools
   ];
   shellHook = ''
     export TERM=xterm
