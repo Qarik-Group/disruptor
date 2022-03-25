@@ -47,7 +47,8 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
-readonly DEFAULT_NIX_PATH="nixpkgs=${__DIR__}/nixpkgs.nix:nixpkgs_latest=${__DIR__}/nixpkgs-latest.nix"
+readonly DEFAULT_NIX_DIR="${__DIR__}"
+readonly DEFAULT_NIX_PATH='$(nix-instantiate --eval "${DEFAULT_NIX_DIR}/nixpkgs.nix" | tr -d \")'
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"
@@ -248,6 +249,7 @@ ensure_nix_shell_rc_exists() {
 
   mkdir -p "${CACHE_ROOT}"
 
+  : > "${NIX_SHELL_RC}"
   if [ -n "${EXTRA_RC}" ]; then cat "${EXTRA_RC}" >> "${NIX_SHELL_RC}"; fi
 
   if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
@@ -261,6 +263,7 @@ ensure_nix_shell_rc_exists() {
   cat >> "${NIX_SHELL_RC}" <<- EOL
 	DIRENV_CONFIG=${DIRENV_CONFIG}
 	NIX_SHELL_RC=${NIX_SHELL_RC}
+	DEFAULT_NIX_DIR=${DEFAULT_NIX_DIR}
 	NIX_PATH=${nix_path}
 	EOL
 
