@@ -25,7 +25,7 @@ def cpp_toolchains():
 
     nixpkgs_cc_configure(
         name = "cpp-toolchain-aarch64-linux",
-        nix_file = "@bzl_4//third_party/cpp_toolchains:aarch64-linux.nix",
+        nix_file = "@bzl4//third_party/cpp_toolchains:aarch64-linux.nix",
         repositories = NIX_REPOSITORIES,
         exec_constraints = [
             "@platforms//cpu:x86_64",
@@ -39,7 +39,7 @@ def cpp_toolchains():
 
     nixpkgs_cc_configure(
         name = "cpp-toolchain-ppc64-linux",
-        nix_file = "@bzl_4//third_party/cpp_toolchains:ppc64-linux.nix",
+        nix_file = "@bzl4//third_party/cpp_toolchains:ppc64-linux.nix",
         repositories = NIX_REPOSITORIES,
         exec_constraints = [
             "@platforms//cpu:x86_64",
