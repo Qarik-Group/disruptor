@@ -48,6 +48,7 @@ require_util() {
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
 readonly DEFAULT_NIX_DIR="${__DIR__}"
+# shellcheck disable=SC2016
 readonly DEFAULT_NIX_PATH='$(nix-instantiate --eval "${DEFAULT_NIX_DIR}/nixpkgs.nix" | tr -d \")'
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
