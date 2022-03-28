@@ -9,16 +9,30 @@
     };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
     nixpkgs_latest.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix-direnv.url = "github:nix-community/nix-direnv";
+    nix-direnv.inputs = {
+      nixpkgs.follows = "nixpkgs";
+      flake-compat.follows = "flake-compat";
+      flake-utils.follows = "flake-utils";
+    };
   };
 
-  outputs = { self, nixpkgs_latest, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs_latest, nixpkgs, nix-direnv, flake-utils, ... }:
   flake-utils.lib.eachDefaultSystem (system:
   let
-    pkgs = nixpkgs.legacyPackages.${system};
-    pkgs_latest = nixpkgs_latest.legacyPackages.${system};
+    overlays = [
+      (self: super: {
+        nix-direnv = nix-direnv.defaultPackage.${system};
+      })
+    ];
+    pkgs = (import nixpkgs {
+      inherit system overlays;
+    });
+    pkgs_latest = (import nixpkgs_latest {
+      inherit system overlays;
+    });
     dev_shell = import ./shell.nix {
-      pkgs = nixpkgs.legacyPackages.${system};
-      pkgs_latest = nixpkgs_latest.legacyPackages.${system};
+      inherit pkgs pkgs_latest;
     };
   in {
       nixpkgs = pkgs;
