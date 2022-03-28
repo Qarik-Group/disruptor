@@ -47,9 +47,7 @@ require_util() {
 }
 
 readonly USER_HOME="${HOME:-"HOME variable has not been set"}"
-readonly DEFAULT_NIX_DIR="${__DIR__}"
 # shellcheck disable=SC2016
-readonly DEFAULT_NIX_PATH='$(nix-instantiate --eval "${DEFAULT_NIX_DIR}/nixpkgs.nix" | tr -d \")'
 readonly CACHE_ROOT="${__DIR__}/../.cache"
 readonly NIX_USER_CHROOT_VERSION="1.2.2"
 readonly NIX_USER_CHROOT_DIR="${CACHE_ROOT}/nix-user-chroot"
@@ -225,29 +223,6 @@ ensure_nix_is_present() {
 }
 
 ensure_nix_shell_rc_exists() {
-  if ${VANILLA_RUN}; then
-
-    set +u
-    if
-      # shellcheck disable=SC1090
-      [ -n "${EXTRA_RC}" ] \
-      && nix_path_in_rc="$(. "${EXTRA_RC}"; echo "${NIX_PATH}")"\
-      && [ -n "${nix_path_in_rc}" ];
-    then
-      local nix_path="${nix_path_in_rc}"
-    elif
-      [ -n "${NIX_PATH}" ];
-    then
-      local nix_path="${NIX_PATH}"
-    else
-      fail "NIX_PATH undefined"
-    fi
-    set -u
-
-  else
-    local nix_path="${DEFAULT_NIX_PATH}"
-  fi
-
   mkdir -p "${CACHE_ROOT}"
 
   : > "${NIX_SHELL_RC}"
@@ -264,8 +239,6 @@ ensure_nix_shell_rc_exists() {
   cat >> "${NIX_SHELL_RC}" <<- EOL
 	DIRENV_CONFIG=${DIRENV_CONFIG}
 	NIX_SHELL_RC=${NIX_SHELL_RC}
-	DEFAULT_NIX_DIR=${DEFAULT_NIX_DIR}
-	NIX_PATH=${nix_path}
 	EOL
 
 }
@@ -313,7 +286,7 @@ fi
 
 # Pass arguments to nix-shell preserving quotes
 if ${VANILLA_RUN}; then
-  Push -c nsargs "$@" || true
+  Push -c nsargs --arg vanilla true "$@"
 else
   Push -c nsargs --pure "$@"
 fi
