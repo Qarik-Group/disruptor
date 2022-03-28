@@ -18,28 +18,14 @@
   };
 
   outputs = { self, nixpkgs_latest, nixpkgs, nix-direnv, flake-utils, ... }:
-  flake-utils.lib.eachDefaultSystem (system:
-  let
-    overlays = [
-      (self: super: {
-        nix-direnv = nix-direnv.defaultPackage.${system};
-      })
-    ];
-    pkgs = (import nixpkgs {
-      inherit system overlays;
-    });
-    pkgs_latest = (import nixpkgs_latest {
-      inherit system overlays;
-    });
-    dev_shell = import ./shell.nix {
-      inherit pkgs pkgs_latest;
-    };
-  in {
-      nixpkgs = pkgs;
-      nixpkgs_latest = pkgs_latest;
-      # DO NOT USE nix develop, as it is not hermetic
-      # use nix-shell --pure, which loads devShell with out any settings from user env
-      devShell = dev_shell;
-    }
-  );
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        overlays = [ nix-direnv.overlay ];
+        callArgs = { inherit system overlays; };
+      in
+      { inherit callArgs; } //
+      builtins.mapAttrs
+        (n: v: import v callArgs)
+        { inherit nixpkgs nixpkgs_latest; }
+    );
 }

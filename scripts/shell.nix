@@ -1,5 +1,47 @@
-{ pkgs ? import <nixpkgs> { } }:
+{ vanilla ? false }:
+with builtins;
+let
+  flake = (import
+    (
+      let lock = fromJSON (readFile ../flake.lock); in
+      fetchTarball {
+        url = "https://github.com/edolstra/flake-compat/archive/${lock.nodes.flake-compat.locked.rev}.tar.gz";
+        sha256 = lock.nodes.flake-compat.locked.narHash;
+      }
+    )
+    { src = ../.; }
+  ).defaultNix;
+
+  NIX_PATH =
+    if vanilla
+    then getEnv "NIX_PATH"
+    else
+      concatStringsSep ":" (
+        attrValues (
+          mapAttrs
+            (
+              n: v:
+                if hasAttr "path" v
+                then "${n}=${storePath v.path}"
+                else "${n}=null"
+            )
+            (
+              (mapAttrs (n: v: getAttr currentSystem v) flake.outputs)
+            )
+        )
+      );
+
+  pkgs =
+    if vanilla
+    then (import <nixpkgs> flake.outputs.callArgs.${currentSystem})
+    else flake.outputs.nixpkgs.${currentSystem};
+
+in
 pkgs.mkShell {
+  inherit NIX_PATH;
+  TERM = "xterm";
+  TMPDIR = "/tmp";
+
   buildInputs = with pkgs; [
     cacert
     coreutils-full
@@ -13,11 +55,8 @@ pkgs.mkShell {
     shellcheck
   ];
 
-  TERM = "xterm";
-  TMPDIR = "/tmp";
-
   shellHook = ''
-    set -a; . ${builtins.getEnv "NIX_SHELL_RC"}; set +a
+    set -a; . ${getEnv "NIX_SHELL_RC"}; set +a
     cat ${pkgs.nix-direnv}/share/nix-direnv/direnvrc > ''${DIRENV_CONFIG}/direnvrc
     eval "$(direnv hook bash)"
     cd() { builtin cd $1; eval "$(direnv export bash)"; }
