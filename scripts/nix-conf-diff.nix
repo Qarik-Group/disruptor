@@ -27,6 +27,15 @@ let
     else
       (lib.strings.splitString " " x));
 
+  # Counteract the questionable translation of boolean values
+  to_string = x:
+    (if x == true then
+      "true"
+    else if x == false then
+      "false"
+    else
+      builtins.toString x);
+
   # attrset representing disruptor required config
   disruptor-config =
     builtins.mapAttrs (_: v: (from_str v)) disruptor-config-strs;
@@ -38,4 +47,8 @@ let
       (builtins.toString global-value) != v
     else
       global-value != v)) disruptor-config;
-in different_settings
+  output = lib.mapAttrs (k: v:
+    "'${to_string v}' change to => '${
+      to_string (builtins.getAttr k global-nix-config)
+    }';") different_settings;
+in output
