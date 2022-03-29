@@ -115,6 +115,7 @@ verify_nix_daemon_config_compatibility() {
   # said logic. 
   # Therefore "experimental-features = nix-command" are needed.
 
+  mkdir -p "${CACHE_ROOT}"
   # Why not $(nix show-config)? It fails with cryptic 'access-tokens: command not found'
   nix show-config --json > "${global_nix_conf_settings}" 2>/dev/null
   # shellcheck disable=SC2181
