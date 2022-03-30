@@ -117,7 +117,7 @@ verify_nix_daemon_config_compatibility() {
 
   mkdir -p "${CACHE_ROOT}"
   # Why not $(nix show-config)? It fails with cryptic 'access-tokens: command not found'
-  nix show-config --json > "${global_nix_conf_settings}" 2>/dev/null
+  nix --experimental-features nix-command show-config --json > "${global_nix_conf_settings}" 2>/dev/null
   # shellcheck disable=SC2181
   if [ $? -ne 0 ]; then
    fail "nix show-config command has failed. Please enable it by following this steps: https://nixos.wiki/wiki/Nix_command"
