@@ -239,7 +239,7 @@ ensure_nix_shell_rc_exists() {
   cat >> "${NIX_SHELL_RC}" <<- EOL
 	DIRENV_CONFIG=${DIRENV_CONFIG}
 	NIX_SHELL_RC=${NIX_SHELL_RC}
-  NIX_CONF_DIR=${NIX_CONF_DIR}
+	NIX_CONF_DIR=${NIX_CONF_DIR}
 	EOL
 
 }
