@@ -15,15 +15,24 @@
       flake-compat.follows = "flake-compat";
       flake-utils.follows = "flake-utils";
     };
+    nixgl.url = "github:guibou/nixGL";
+    nixgl.inputs = {
+      nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs_latest, nixpkgs, nix-direnv, flake-utils, ... }:
+  outputs = { self, nixpkgs_latest, nixpkgs, nixgl, nix-direnv, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [ nix-direnv.overlay ];
+        # import <XXX> underneath this project
+        # will not be able to use any of those
+        # overlays.
+        overlays = [ 
+          nixgl.overlay
+          nix-direnv.overlay
+        ];
         callArgs = { inherit system overlays; };
       in
-      { inherit callArgs; } //
       builtins.mapAttrs
         (n: v: import v callArgs)
         { inherit nixpkgs nixpkgs_latest; }

@@ -36,6 +36,8 @@ let
     then (import <nixpkgs> flake.outputs.callArgs.${currentSystem})
     else flake.outputs.nixpkgs.${currentSystem};
 
+  # nixgl = flake.outputs.nixgl.${currentSystem};
+
 in
 pkgs.mkShell {
   inherit NIX_PATH;
@@ -50,9 +52,11 @@ pkgs.mkShell {
     # Add git client to shell, it reads host configuration
     git
     gnutar
-    # Nix 2.5 (as the one from the installator)
-    nixUnstable
+    nix
     shellcheck
+    # openGL for nixpkgs on non-nixos hosts
+    nixgl.nixGLIntel
+    nixgl.nixVulkanIntel
   ];
 
   shellHook = ''
