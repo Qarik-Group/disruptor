@@ -28,9 +28,11 @@
         # will not be able to use any of those
         # overlays.
         overlays = [ 
-          nixgl.overlay
           nix-direnv.overlay
-        ];
+        ] ++ (
+          # At the moment nixgl only supports x86_64-linux
+          if system == "x86_64-linux" then [nixgl.overlay] else []
+        );
         callArgs = { inherit system overlays; };
       in
       builtins.mapAttrs

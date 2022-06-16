@@ -54,10 +54,13 @@ pkgs.mkShell {
     gnutar
     nix
     shellcheck
-    # openGL for nixpkgs on non-nixos hosts
-    nixgl.nixGLIntel
-    nixgl.nixVulkanIntel
-  ];
+  ] ++ (
+    # nigGL works only on x86_64-linux
+    if builtins.currentSystem == "x86_64-linux" then [ 
+      nixgl.nixGLIntel
+      nixgl.nixVulkanIntel 
+    ] else []
+  );
 
   shellHook = ''
     set -a; . ${getEnv "NIX_SHELL_RC"}; set +a
