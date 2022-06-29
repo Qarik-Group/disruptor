@@ -1,4 +1,4 @@
-# ADR 4: Project Management using GitHub Projects
+# ADR 5: Project Management using GitHub Projects
 
 ## Context
 Project management tool is useful to provide a vision of project, keeping track of a work and allows to align project with the goals set for it.
@@ -30,11 +30,13 @@ Open source projects usually try to follow project management process to stay on
 
 ## Decision
 We will use [GitHub Project Boards](https://docs.github.com/en/issues/organizing-your-work-with-project-boards/managing-project-boards/about-project-boards) to enable simple project management tool for resolving issues and to plan, track and deliver changes.\
-GitHub Project Board are available on the GitHub platform for free, making it a tool that is easy to manage, accessible to everyone and integrating easly with collaboratos git flow.
+GitHub Project Board are available on the GitHub platform for free, making it a tool that is easy to manage, accessible to everyone and integrating easly with collaboratos git flow.\
+
+[UPDATE: 06/29/22] Project Boards didn't bring any value from initial proposal to the time of this ADR update. It seems they are not needed as they are not used and maintained.
 
 ## Status
 
-Proposed.
+Rejected.
 
 ## Consequences
 To be seen.
