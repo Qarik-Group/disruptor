@@ -22,9 +22,9 @@ http_archive(
 
 http_archive(
     name = "io_tweag_rules_nixpkgs",
-    sha256 = "7efb0f82cda5cdaa8e96b687734c5704b91353561d7889e5d84a13b6d30f4cb8",
-    strip_prefix = "rules_nixpkgs-05a445575de51872f528c537cc7ff3ab11114f21",
-    urls = ["https://github.com/tweag/rules_nixpkgs/archive/05a445575de51872f528c537cc7ff3ab11114f21.tar.gz"],
+    sha256 = "17abb7a7ee9630d86ce297998a118ff7258dea627d21559cdf9f6cf618f817d2",
+    strip_prefix = "rules_nixpkgs-d542df716db422f6a7fab180202d03e1f1cc03f6",
+    urls = ["https://github.com/tweag/rules_nixpkgs/archive/d542df716db422f6a7fab180202d03e1f1cc03f6.tar.gz"],
 )
 
 load("@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl", "rules_nixpkgs_dependencies")
@@ -38,3 +38,7 @@ cpp_toolchains()
 
 load("//third_party:dependencies.bzl", "third_party_deps")
 third_party_deps()
+
+register_toolchains(
+    "//:autolosected_cc_toolchain",
+)

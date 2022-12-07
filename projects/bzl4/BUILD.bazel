@@ -1,1 +1,12 @@
 """ Example project bzl4 """
+toolchain(                                                                                                                                                                                                          
+    name = "autolosected_cc_toolchain",                                                                                                                                                                                
+    toolchain = select(                                                                                                                                                                                             
+        {                                                                                                                                                                                                           
+            "//build/cc:gcc9": "@cpp-toolchain-x86_64-linux-gcc9//:cc-compiler-k8",                                                                                                                                                 
+            "//build/cc:gcc11": "@cpp-toolchain-x86_64-linux-gcc11//:cc-compiler-k8",
+        },                                                                                                                                                                                                          
+    ),                                                                                                                                                                                                              
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",                                                                                                                                                           
+)
+

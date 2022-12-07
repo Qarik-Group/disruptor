@@ -3,3 +3,7 @@ build --host_platform=@io_tweag_rules_nixpkgs//nixpkgs/platforms:host
 
 # Enable platforms for cc_rules
 build --incompatible_enable_cc_toolchain_resolution
+build --experimental_platform_in_output_dir
+
+build:gcc9 --//build/cc:compiler=gcc9
+build:gcc11 --//build/cc:compiler=gcc11
