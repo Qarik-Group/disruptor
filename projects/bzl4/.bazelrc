@@ -3,3 +3,40 @@ build --host_platform=@io_tweag_rules_nixpkgs//nixpkgs/platforms:host
 
 # Enable platforms for cc_rules
 build --incompatible_enable_cc_toolchain_resolution
+
+build --experimental_platform_in_output_dir
+
+# Build with gcc9 by default
+build --platforms=//platforms:x86_64_linux_gcc9
+# Config for gcc11
+build:gcc11 --platforms=//platforms:x86_64_linux_gcc11
+# Config for cuda
+build:cuda --//hello_world:gpu=cuda
+
+# config for BES
+build:bes --bes_results_url=https://buildbuddy.1e100.one/invocation/
+build:bes --bes_backend=grpcs://buildbuddy-grpc.1e100.one
+build:bes --noslim_profile
+build:bes --experimental_profile_include_target_label
+build:bes --experimental_profile_include_primary_output
+build:bes --build_metadata=USER=dev
+
+# Config for remote cache, also uses BES
+build:cache --config=bes
+build:cache --remote_cache=grpcs://buildbuddy-grpc.1e100.one
+build:cache --remote_timeout=3600
+
+# Config for remote execution, also uses remote cache and BES
+build:remote --config=cache
+build:remote --experimental_repo_remote_exec
+build:remote --remote_executor=grpcs://buildbuddy-grpc.1e100.one
+build:remote --extra_execution_platforms=@buildbuddy_toolchain//:platform
+build:remote --crosstool_top=@buildbuddy_toolchain//:toolchain
+build:remote --extra_toolchains=@buildbuddy_toolchain//:cc_toolchain
+build:remote --javabase=@buildbuddy_toolchain//:javabase_jdk8
+build:remote --host_javabase=@buildbuddy_toolchain//:javabase_jdk8
+build:remote --java_toolchain=@buildbuddy_toolchain//:toolchain_jdk8
+build:remote --host_java_toolchain=@buildbuddy_toolchain//:toolchain_jdk8
+build:remote --define=EXECUTOR=remote
+
+try-import %workspace%/user.bazelrc
