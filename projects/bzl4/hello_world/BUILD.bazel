@@ -1,6 +1,7 @@
 """ Hello world app """
 
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 
 cc_binary(
     name = "main",
@@ -9,5 +10,36 @@ cc_binary(
     ]),
     deps = [
       "//third_party/xz"
-    ]
+    ],
+    defines = select({
+      ":cuda_build": ["WITH_CUDA"],
+       "//conditions:default": [],
+    })
 )
+
+string_flag(
+    name = "gpu",
+    build_setting_default = "none",
+    values = [
+      "none",
+      "cuda"
+    ],
+)
+
+
+config_setting(
+    name = "cuda_build",
+    flag_values = {
+        ":gpu": "cuda",
+    },
+    visibility = ["//visibility:public"],
+)
+
+
+# Legacy way for configurable build attributes
+# config_setting(
+#     name = "cuda_build",
+#     values = {
+#         "define": "with_cuda=1",
+#     },
+# )
