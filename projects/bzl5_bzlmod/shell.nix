@@ -5,8 +5,8 @@
 }:
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    pkgs_latest.bazel_5
-    pkgs_latest.bazel-buildtools
+    bazel_6
+    bazel-buildtools
     jdk11
   ];
   shellHook = ''
