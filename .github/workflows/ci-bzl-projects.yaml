@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        project: [ bzl4, bzl5_bzlmod ]
+        project: [ bzl4, bzl5_bzlmod, bzl7 ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code

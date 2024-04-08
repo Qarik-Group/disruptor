@@ -1,0 +1,72 @@
+module(
+    name = "bzl7",
+)
+
+RULES_NIX_PKGS_VERSION = "0.11.1"
+
+bazel_dep(name = "rules_cc", version = "0.0.9")
+bazel_dep(name = "rules_nixpkgs_cc")
+bazel_dep(name = "rules_nixpkgs_core", version = RULES_NIX_PKGS_VERSION)
+bazel_dep(name = "platforms", version = "0.0.9")
+
+# Not yet available in the bazel central registry.
+archive_override(
+    module_name = "rules_nixpkgs_cc",
+    urls = [
+        "https://github.com/tweag/rules_nixpkgs/releases/download/v{0}/rules_nixpkgs-{0}.tar.gz".format(RULES_NIX_PKGS_VERSION),
+    ],
+    strip_prefix = "rules_nixpkgs-{}/toolchains/cc".format(RULES_NIX_PKGS_VERSION),
+    integrity = "sha256-KlVTSNf4WT/KK/P8bOU8XWKSnegbbCkuI/FsVXwK5Fo=",
+)
+
+nix_repo = use_extension("@rules_nixpkgs_core//extensions:repository.bzl", "nix_repo")
+nix_repo.http(
+    name = "nixpkgs",
+    url = "https://github.com/NixOS/nixpkgs/archive/refs/tags/23.11.tar.gz",
+    sha256 = "bc9a0a74e8d7fb0e11434dd3abaa0cb0572ccd3a65b5a192eea41832b286e8a0",
+    strip_prefix = "nixpkgs-23.11",
+)
+use_repo(nix_repo, "nixpkgs")
+
+nix_pkg = use_extension("@rules_nixpkgs_core//extensions:package.bzl", "nix_pkg")
+nix_pkg.expr(
+    name = "boost",
+    attr = "",
+    repo = "@nixpkgs",
+    expr = """
+let pkgs = import <nixpkgs> {}; in
+pkgs.symlinkJoin { name = "boost"; paths = with pkgs; [ boost boost.dev ]; }""",
+    build_file_content = """
+cc_library(
+    name = "boost",
+    srcs = glob(["lib/*.so*"]),
+    hdrs = glob(["include/boost/**/*.h", "include/boost/**/*.hpp", "include/boost/**/*.ipp"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+""",
+)
+use_repo(nix_pkg, "boost")
+
+non_module_deps = use_extension("//toolchains:defs.bzl", "non_module_deps")
+use_repo(
+    non_module_deps,
+    "gcc_10",
+    "gcc_10_info",
+    "gcc_10_toolchains",
+    "gcc_11",
+    "gcc_11_info",
+    "gcc_11_toolchains",
+    "gcc_12",
+    "gcc_12_info",
+    "gcc_12_toolchains",
+    "gcc_13",
+    "gcc_13_info",
+    "gcc_13_toolchains",
+)
+register_toolchains(
+    "@gcc_10_toolchains//:all",
+    "@gcc_11_toolchains//:all",
+    "@gcc_12_toolchains//:all",
+    "@gcc_13_toolchains//:all",
+)

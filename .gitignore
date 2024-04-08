@@ -4,3 +4,4 @@ bazel-*
 .output-bazelrc
 .idea
 result
+MODULE.bazel.lock
