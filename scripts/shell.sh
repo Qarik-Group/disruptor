@@ -97,6 +97,43 @@ preflightCheck() {
   esac
 }
 
+verify_nix_daemon_config_compatibility() {
+  # Check if there is no discrepancies between host nix daemon configuration
+  # and project disruptor requirements.
+  # 
+  # As one cannot assume the commands will be executed by a trusted nix user,
+  # only verification remains to notify user of any potential issues in host
+  # nix configuration.
+  #
+  # This function assumes nix is installed globally and present in $PATH.
+
+  local readonly config_difference;
+  local readonly global_nix_conf_settings="${CACHE_ROOT}/.global-nix-conf"
+
+  # `nix show-config` seems to be the only available way of obtaning 
+  # "final" nix configuration, without doing the re-implementation of 
+  # said logic. 
+  # Therefore "experimental-features = nix-command" are needed.
+
+  mkdir -p "${CACHE_ROOT}"
+  # Why not $(nix show-config)? It fails with cryptic 'access-tokens: command not found'
+  nix --experimental-features nix-command show-config --json > "${global_nix_conf_settings}" 2>/dev/null
+  # shellcheck disable=SC2181
+  if [ $? -ne 0 ]; then
+   fail "nix show-config command has failed. Please enable it by following this steps: https://nixos.wiki/wiki/Nix_command"
+  fi
+
+  config_difference="$(nix-instantiate --strict --eval "${__DIR__}"/nix-conf-diff.nix)"
+  if [ "${config_difference}" == "{ }" ]; then
+    return
+  fi
+  echo "The configuration of host nix daemon differs from the expected one."
+  echo "These are the offending settings: "
+  echo "${config_difference}"
+  echo "---" 
+  echo "Please update your configuration otherwise the shell may not work as intended."
+}
+
 printHelp() {
   cat << EOF
    Usage: nix-shell.sh [--rcfile] [--vanilla] [--help] -- <PARAMS TO PASS TO NIX-SHELL>
@@ -162,6 +199,7 @@ setup_nix() {
 }
 
 ensure_direnv_is_configured() {
+  # shellcheck disable=SC2034
   local readonly project_root
   project_root=$(dirname "$(realpath "${__DIR__}"/..)")
   mkdir -p "${CACHE_ROOT}"
@@ -172,43 +210,16 @@ EOF
 }
 
 ensure_nix_is_present() {
-  if ${IS_NIXOS}; then
-    # On nixos, nix is installed by default
-    return
-  fi
-
   if command -v "nix" >/dev/null 2>&1; then
     IS_NIX_INSTALLED=true;
   else
     IS_NIX_INSTALLED=false;
   fi
-  # We need to distinguish between single-user and multi-user installs.
-  # This is difficult because there's no official way to do this.
-  # Details: https://github.com/lilyball/nix-env.fish/blob/00c6cc762427efe08ac0bd0d1b1d12048d3ca727/conf.d/nix-env.fish
 
-  # stat is not portable. Splitting the output of ls -nd is reliable on most platforms.
+  # Global nix installation
   if ${IS_NIX_INSTALLED}; then
-    local readonly nix_store_owner
-    # shellcheck disable=SC2012
-    nix_store_owner=$(ls -nd /nix/store | cut -d' ' -f3)
-    if [ "${nix_store_owner}" -eq 0 ]; then
-      local readonly is_nix_multiuser_install=true;
-    else
-      local readonly is_nix_multiuser_install=false;
-    fi
-  else
-    # shellcheck disable=SC2034
-    local readonly is_nix_multiuser_install=false;
-  fi
-
-  # Global, single-user installation
-  if ${IS_NIX_INSTALLED} && ! ${is_nix_multiuser_install}; then
+    verify_nix_daemon_config_compatibility
     return
-  fi
-
-  if ${IS_NIX_INSTALLED} && ${is_nix_multiuser_install}; then
-    # TODO: Find a solution
-    fail "Daemon-based nix installation is not supported"
   fi
 
   if [ -d "${NIX_STORE}" ]; then
@@ -217,7 +228,7 @@ ensure_nix_is_present() {
     return
   fi
 
-  # No nix installed or nix is multi-user installation
+  # No nix installed
   setup_nix_user_chroot
   setup_nix
 }
@@ -228,9 +239,15 @@ ensure_nix_shell_rc_exists() {
   : > "${NIX_SHELL_RC}"
   if [ -n "${EXTRA_RC}" ]; then cat "${EXTRA_RC}" >> "${NIX_SHELL_RC}"; fi
 
-  if ! ${IS_NIXOS} || ${IS_NIX_INSTALLED}; then
+  # NixOS does not have/use boostraping nix.sh script
+  if ! ${IS_NIXOS}; then
      cat >> "${NIX_SHELL_RC}" <<-EOL
 	. ${USER_HOME}/.nix-profile/etc/profile.d/nix.sh
+	EOL
+  fi
+
+  if ${IS_NIX_INSTALLED}; then
+     cat >> "${NIX_SHELL_RC}" <<-EOL
 	NIX_CONF_DIR=${NIX_CONF_DIR}
 	NIX_USER_CONF_FILES=${NIX_USER_CONF_FILES}
 	EOL
@@ -280,7 +297,7 @@ ensure_nix_shell_rc_exists
 # shellcheck disable=SC1091
 . "${__DIR__}/push.sh"
 
-if ! ${IS_NIXOS} && ! ${IS_NIX_INSTALLED}; then
+if ! ${IS_NIX_INSTALLED}; then
   # shellcheck disable=SC2250
   SHELL="$NIX_USER_CHROOT_BIN ${NIX_STORE} bash"
 fi
