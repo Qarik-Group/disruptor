@@ -9,7 +9,7 @@ jobs:
     name: build ${{ matrix.project }} on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, ubuntu-18.04 ]
+        os: [ ubuntu-latest ]
         project: [ bzl4, bzl5_bzlmod ]
     runs-on: ${{ matrix.os }}
     steps:
