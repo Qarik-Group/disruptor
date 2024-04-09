@@ -1,6 +1,8 @@
 """ Hello world app """
 
 load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("@rules_pkg//:pkg.bzl", "pkg_deb", "pkg_tar")
 
 cc_binary(
     name = "main",
@@ -9,5 +11,57 @@ cc_binary(
     ]),
     deps = [
       "//third_party/xz"
-    ]
+    ],
+    defines = select({
+      ":cuda_build": ["WITH_CUDA"],
+       "//conditions:default": [],
+    })
+)
+
+string_flag(
+    name = "gpu",
+    build_setting_default = "none",
+    values = [
+      "none",
+      "cuda"
+    ],
+)
+
+
+config_setting(
+    name = "cuda_build",
+    flag_values = {
+        ":gpu": "cuda",
+    },
+    visibility = ["//visibility:public"],
+)
+
+
+# Legacy way for configurable build attributes
+# config_setting(
+#     name = "cuda_build",
+#     values = {
+#         "define": "with_cuda=1",
+#     },
+# )
+
+pkg_tar(
+    name = "debian-data",
+    srcs = [
+        ":main",
+    ],
+)
+
+pkg_deb(
+    name = "hello-world-deb",
+    architecture = "amd64",
+    built_using = "bazel 5.3.2",
+    data = ":debian-data",
+    depends = [
+      "xz",
+    ],
+    description = "description",
+    maintainer = "The Qarik authors <user@mail.com>",
+    package = "hello-world",
+    version = "1.0.0",
 )

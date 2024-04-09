@@ -11,8 +11,10 @@ def cpp_toolchains():
     # for example unknown and pc are interchangeable.
 
     nixpkgs_cc_configure(
-        name = "cpp-toolchain-x86_64-linux",
+        name = "cpp-toolchain-x86_64-linux-gcc11",
         repositories = NIX_REPOSITORIES,
+        attribute_path = "gcc11",
+        nix_file_content = "import <nixpkgs> {}",
         exec_constraints = [
             "@platforms//cpu:x86_64",
             "@platforms//os:linux",
@@ -20,6 +22,23 @@ def cpp_toolchains():
         target_constraints = [
             "@platforms//cpu:x86_64",
             "@platforms//os:linux",
+            "@//platforms:gcc11",
+        ],
+    )
+
+    nixpkgs_cc_configure(
+        name = "cpp-toolchain-x86_64-linux-gcc9",
+        repositories = NIX_REPOSITORIES,
+        attribute_path = "gcc9",
+        nix_file_content = "import <nixpkgs> {}",
+        exec_constraints = [
+            "@platforms//cpu:x86_64",
+            "@platforms//os:linux",
+        ],
+        target_constraints = [
+            "@platforms//cpu:x86_64",
+            "@platforms//os:linux",
+            "@//platforms:gcc9",
         ],
     )
 
