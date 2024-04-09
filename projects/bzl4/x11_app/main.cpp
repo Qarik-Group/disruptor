@@ -84,11 +84,7 @@ int main(int argc, char ** argv) {
     }
 
     if (e.type == KeyPress) {
-      char buf[128] = {
-        0
-      };
-      KeySym keysym;
-      if (keysym == XK_Escape)
+      if (e.xkey.keycode == 0x09) // Esc
         break;
     }
 
