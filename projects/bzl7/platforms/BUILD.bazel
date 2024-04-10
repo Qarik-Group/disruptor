@@ -1,0 +1,29 @@
+package(default_visibility = ["//visibility:public"])
+
+platform(
+    name = "gcc_10",
+    constraint_values = [
+        "//platforms/cpp:gcc_10"
+    ],
+)
+
+platform(
+    name = "gcc_11",
+    constraint_values = [
+        "//platforms/cpp:gcc_11"
+    ],
+)
+
+platform(
+    name = "gcc_12",
+    constraint_values = [
+        "//platforms/cpp:gcc_12"
+    ],
+)
+
+platform(
+    name = "gcc_13",
+    constraint_values = [
+        "//platforms/cpp:gcc_13"
+    ],
+)

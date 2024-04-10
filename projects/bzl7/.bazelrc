@@ -1,0 +1,8 @@
+build --incompatible_enable_cc_toolchain_resolution
+build --incompatible_strict_action_env
+
+build --host_platform=@rules_nixpkgs_core//platforms:host
+
+build:gcc10 --platforms=//platforms:gcc_10
+build:gcc11 --platforms=//platforms:gcc_11
+build:gcc13 --platforms=//platforms:gcc_13

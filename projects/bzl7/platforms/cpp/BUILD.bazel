@@ -1,0 +1,23 @@
+package(default_visibility = ["//visibility:public"])
+
+constraint_setting(name = "gcc_version")
+
+constraint_value(
+    name = "gcc_10",
+    constraint_setting = ":gcc_version",
+)
+
+constraint_value(
+    name = "gcc_11",
+    constraint_setting = ":gcc_version",
+)
+
+constraint_value(
+    name = "gcc_12",
+    constraint_setting = ":gcc_version",
+)
+
+constraint_value(
+    name = "gcc_13",
+    constraint_setting = ":gcc_version",
+)
