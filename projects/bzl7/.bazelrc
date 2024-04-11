@@ -6,3 +6,7 @@ build --host_platform=@rules_nixpkgs_core//platforms:host
 build:gcc10 --platforms=//platforms:gcc_10
 build:gcc11 --platforms=//platforms:gcc_11
 build:gcc13 --platforms=//platforms:gcc_13
+
+build:python310 --@rules_python//python/config_settings:python_version="3.10"
+build:python311 --@rules_python//python/config_settings:python_version="3.11"
+build:python312 --@rules_python//python/config_settings:python_version="3.12"
