@@ -5,3 +5,5 @@ bazel-*
 .idea
 result
 MODULE.bazel.lock
+projects/bzl7/go/gazelle/BUILD.bazel
+projects/bzl7/go/gazelle/foo/BUILD.bazel
