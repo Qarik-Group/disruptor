@@ -1,0 +1,9 @@
+load("@gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/Qarik-Group/disruptor/projects/bzl7
+gazelle(
+    name = "gazelle",
+    args = [
+        "go/gazelle"
+    ],
+)
