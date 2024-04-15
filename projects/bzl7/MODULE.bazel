@@ -93,3 +93,11 @@ use_repo(
     "python_3_12",
     "python_versions",
 )
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pip_example_3_12",
+    python_version = "3.12",
+    requirements_lock = "@bzl7//python/pip:requirements_lock.txt",
+)
+use_repo(pip, "pip_example_3_12")
