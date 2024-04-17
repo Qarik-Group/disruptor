@@ -3,27 +3,39 @@ package(default_visibility = ["//visibility:public"])
 platform(
     name = "gcc_10",
     constraint_values = [
-        "//platforms/cpp:gcc_10"
+        "//platforms/cpp:gcc_10",
+    ],
+    parents = [
+        "@rules_nixpkgs_core//platforms:host",
     ],
 )
 
 platform(
     name = "gcc_11",
     constraint_values = [
-        "//platforms/cpp:gcc_11"
+        "//platforms/cpp:gcc_11",
+    ],
+    parents = [
+        "@rules_nixpkgs_core//platforms:host",
     ],
 )
 
 platform(
     name = "gcc_12",
     constraint_values = [
-        "//platforms/cpp:gcc_12"
+        "//platforms/cpp:gcc_12",
+    ],
+    parents = [
+        "@rules_nixpkgs_core//platforms:host",
     ],
 )
 
 platform(
     name = "gcc_13",
     constraint_values = [
-        "//platforms/cpp:gcc_13"
+        "//platforms/cpp:gcc_13",
+    ],
+    parents = [
+        "@rules_nixpkgs_core//platforms:host",
     ],
 )

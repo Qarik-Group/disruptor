@@ -6,12 +6,15 @@ RULES_NIX_PKGS_VERSION = "0.11.1"
 
 bazel_dep(name = "aspect_rules_py", version = "0.7.1")
 bazel_dep(name = "gazelle", version = "0.36.0")
+bazel_dep(name = "grpc", version = "1.62.1")
 bazel_dep(name = "rules_cc", version = "0.0.9")
 bazel_dep(name = "rules_go", version = "0.46.0")
 bazel_dep(name = "rules_nixpkgs_cc")
 bazel_dep(name = "rules_nixpkgs_core", version = RULES_NIX_PKGS_VERSION)
+bazel_dep(name = "rules_proto", version = "6.0.0-rc3")
 bazel_dep(name = "rules_python", version = "0.31.0")
 bazel_dep(name = "platforms", version = "0.0.9")
+bazel_dep(name = "protobuf", version = "26.0.bcr.1")
 
 # Not yet available in the bazel central registry.
 archive_override(
@@ -101,3 +104,13 @@ pip.parse(
     requirements_lock = "@bzl7//python/pip:requirements_lock.txt",
 )
 use_repo(pip, "pip_example_3_12")
+
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
+go_sdk.download(version = "1.22.2")
+
+go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
+go_deps.from_file(go_mod = "//go/grpc:go.mod")
+use_repo(
+    go_deps,
+    "org_golang_google_grpc",
+)

@@ -4,6 +4,7 @@ load("@gazelle//:def.bzl", "gazelle")
 gazelle(
     name = "gazelle",
     args = [
-        "go/gazelle"
+        "go/gazelle",
+        "go/grpc",
     ],
 )
