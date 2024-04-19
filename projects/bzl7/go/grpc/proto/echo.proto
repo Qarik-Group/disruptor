@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/Qarik-Group/disruptor/projects/bzl7/go/grpc";
+
+package echo;
+
+// The echo service definition.
+service Echoer {
+  // Sends an echo request.
+  rpc SendEcho (EchoRequest) returns (EchoReply) {}
+}
+
+// The request echo.
+message EchoRequest {
+  string request = 1;
+}
+
+// The response message containing the echo
+message EchoReply {
+  string message = 1;
+}

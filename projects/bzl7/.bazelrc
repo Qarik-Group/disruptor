@@ -1,6 +1,8 @@
 build --incompatible_enable_cc_toolchain_resolution
 build --incompatible_strict_action_env
 
+build --host_cxxopt=-std=c++17
+
 build --host_platform=@rules_nixpkgs_core//platforms:host
 
 build:gcc10 --platforms=//platforms:gcc_10
